@@ -29,6 +29,7 @@ class ElasticityTheory:
                    'monoclinic_2', 'triclinic'
             - stiffness constants: variable number of constants,
                depending on crystal_class.
+               Units: GPa
 
         output: functions to calculate the Compliance and Stiffness matrices,
            and the Compliance tensor
@@ -279,7 +280,7 @@ class DirectionalProperties(ElasticityTheory):
 
     def BulkModulus(self, l):
 
-        B = 0
+        B = 0.
         for i in range(3):
             for j in range(3):
                 for k in range(3):
@@ -288,7 +289,7 @@ class DirectionalProperties(ElasticityTheory):
 
     def YoungModulus(self, l):
 
-        E = 0
+        E = 0.
         for i in range(3):
             for j in range(3):
                 for k in range(3):
@@ -298,7 +299,7 @@ class DirectionalProperties(ElasticityTheory):
 
     def ShearModulus(self, l, n):
 
-        G = 0
+        G = 0.
         for i in range(3):
             for j in range(3):
                 for k in range(3):
@@ -308,7 +309,7 @@ class DirectionalProperties(ElasticityTheory):
 
     def PoissonRatio(self, l, n):
 
-        p = 0
+        p = 0.
         for i in range(3):
             for j in range(3):
                 for k in range(3):
@@ -361,6 +362,11 @@ class VRH(ElasticityTheory):
 
 
 class DebyeGruneisen(VRH):
+
+    pass
+
+
+class Elasticity(DirectionalProperties, VRH):
 
     pass
 
