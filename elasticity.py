@@ -198,73 +198,24 @@ class ElasticityTheory:
 
         St = np.zeros((3, 3, 3, 3), dtype=float)
 
-        # 6
-        St[0, 0, 0, 0] = S[0, 0]
-        St[0, 0, 1, 1] = S[0, 1]
-        St[0, 0, 2, 2] = S[0, 2]
-        St[0, 0, 1, 2] = .5 * S[0, 3]
-        St[0, 0, 0, 2] = .5 * S[0, 4]
-        St[0, 0, 0, 1] = .5 * S[0, 5]
+        rel = {'00': 0, '11': 1, '22': 2, '12': 3, '21': 3, '02': 4, '20': 4, '01': 5, '10': 5}
 
-        # 11
-        St[1, 1, 0, 0] = St[0, 0, 1, 1]
-        St[2, 2, 0, 0] = St[0, 0, 2, 2]
-        St[0, 0, 2, 1] = St[1, 2, 0, 0] = St[2, 1, 0, 0] = St[0, 0, 1, 2]
-        St[0, 0, 2, 0] = St[0, 2, 0, 0] = St[2, 0, 0, 0] = St[0, 0, 0, 2]
-        St[0, 0, 1, 0] = St[0, 1, 0, 0] = St[1, 0, 0, 0] = St[0, 0, 0, 1]
-
-        # 5
-        St[1, 1, 1, 1] = S[1, 1]
-        St[1, 1, 2, 2] = S[1, 2]
-        St[1, 1, 1, 2] = .5 * S[1, 3]
-        St[1, 1, 0, 2] = .5 * S[1, 4]
-        St[1, 1, 0, 1] = .5 * S[1, 5]
-
-        # 10
-        St[2, 2, 1, 1] = St[1, 1, 2, 2]
-        St[1, 1, 2, 1] = St[1, 2, 1, 1] = St[2, 1, 1, 1] = St[1, 1, 1, 2]
-        St[1, 1, 2, 0] = St[0, 2, 1, 1] = St[2, 0, 1, 1] = St[1, 1, 0, 2]
-        St[1, 1, 1, 0] = St[0, 1, 1, 1] = St[1, 0, 1, 1] = St[1, 1, 0, 1]
-
-        # 4
-        St[2, 2, 2, 2] = S[2, 2]
-        St[2, 2, 1, 2] = .5 * S[2, 3]
-        St[2, 2, 0, 2] = .5 * S[2, 4]
-        St[2, 2, 0, 1] = .5 * S[2, 5]
-
-        # 9
-        St[2, 2, 2, 1] = St[1, 2, 2, 2] = St[2, 1, 2, 2] = St[2, 2, 1, 2]
-        St[2, 2, 2, 0] = St[0, 2, 2, 2] = St[2, 0, 2, 2] = St[2, 2, 0, 2]
-        St[2, 2, 1, 0] = St[0, 1, 2, 2] = St[1, 0, 2, 2] = St[2, 2, 0, 1]
-
-        # 3
-        St[1, 2, 1, 2] = .25 * S[3, 3]
-        St[1, 2, 0, 2] = .25 * S[3, 4]
-        St[1, 2, 0, 1] = .25 * S[3, 5]
-
-        # 17
-        St[1, 2, 2, 1] = St[2, 1, 1, 2] = St[2, 1, 2, 1] = St[1, 2, 1, 2]
-        St[1, 2, 2, 0] = St[2, 1, 0, 2] = St[2, 1, 2, 0] = St[0, 2, 1, 2] = St[0, 2, 2, 1] = St[2, 0, 1, 2] = St[2, 0, 2, 1] = St[1, 2, 0, 2]
-        St[1, 2, 1, 0] = St[2, 1, 0, 1] = St[2, 1, 1, 0] = St[0, 1, 1, 2] = St[0, 1, 2, 1] = St[1, 0, 1, 2] = St[1, 0, 2, 1] = St[1, 2, 0, 1]
-
-        # 2
-        St[0, 2, 0, 2] = .25 * S[4, 4]
-        St[0, 2, 0, 1] = .25 * S[4, 5]
-
-        # 10
-        St[0, 2, 2, 0] = St[2, 0, 0, 2] = St[2, 0, 2, 0] = St[0, 2, 0, 2]
-        St[0, 2, 1, 0] = St[2, 0, 0, 1] = St[2, 0, 1, 0] = St[0, 1, 0, 2] = St[0, 1, 2, 0] = St[1, 0, 0, 2] = St[1, 0, 2, 0] = St[0, 2, 0, 1]
-
-        # 1
-        St[0, 1, 0, 1] = .25 * S[5, 5]
-
-        # 3
-        St[0, 1, 1, 0] = St[1, 0, 0, 1] = St[1, 0, 1, 0] = St[0, 1, 0, 1]
-
-        # total: 81
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        m_str = str(i) + str(j)
+                        n_str = str(k) + str(l)
+                        m = rel[m_str]
+                        n = rel[n_str]
+                        if (m<3 and n<3):
+                            St[i, j, k, l] = S[m, n]
+                        elif (m>=3 and n>=3):
+                            St[i, j, k, l] = .25 * S[m, n]
+                        else:
+                            St[i, j, k, l] = .5 * S[m, n]
 
         return St
-
 
 class DirectionalProperties(ElasticityTheory):
 
@@ -294,7 +245,7 @@ class DirectionalProperties(ElasticityTheory):
             for j in range(3):
                 for k in range(3):
                     for m in range(3):
-                        E += self.St[i, j, k, m] * l[k] * l[m]
+                        E += self.St[i, j, k, m] * l[i] * l[j] * l[k] * l[m]
         return 1.0 / E
 
     def ShearModulus(self, l, n):
@@ -372,6 +323,7 @@ class Elasticity(DirectionalProperties, VRH):
 
 
 if __name__ == '__main__':
-    solido = DirectionalProperties('cubic', 300., 500., 200.)
+    solido = Elasticity('tetragonal_1', 288.7, 133.6, 76.7, 283.0, 102.5, 157.9)
     print(solido.YoungModulus([1, 0, 0]))
-    # print (solido.ShearModulus([1,0,0], [0,1,0]))
+    solido.VRH()
+    print(solido.YoungModulus, solido.BulkModulus, solido.ShearModulus, solido.PoissonRatio)
