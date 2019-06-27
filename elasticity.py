@@ -22,11 +22,11 @@ class ElasticityTheory:
 
         input:
             - crystal_class: classified according to Nye (1956).
-                One of the following:
-                   'isotropic', 'cubic', 'hexagonal',
-                   'trigonal_1', 'trigonal_2', 'tetragonal_1',
-                   'tetragonal_2', 'orthorhombic', 'monoclinic_1',
-                   'monoclinic_2', 'triclinic'
+            One of the following (with no. of independent elastic constants):
+                   'isotropic' (2) , 'cubic' (3), 'hexagonal' (5),
+                   'trigonal_1' (6), 'trigonal_2' (7), 'tetragonal_1' (6),
+                   'tetragonal_2' (7), 'orthorhombic' (9), 'monoclinic_1' (13),
+                   'monoclinic_2' (13), 'triclinic' (21)
             - stiffness constants: variable number of constants,
                depending on crystal_class.
                Units: GPa
@@ -66,22 +66,22 @@ class ElasticityTheory:
             C44 = .5 * (C11 - C12)
             C = np.array([
                 [C11, C12, C12,  0.,  0.,  0.],
-                [ 0., C11, C12,  0.,  0.,  0.],
-                [ 0.,  0., C11,  0.,  0.,  0.],
-                [ 0.,  0.,  0., C44,  0.,  0.],
-                [ 0.,  0.,  0.,  0., C44,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C44]
+                [0., C11, C12,  0.,  0.,  0.],
+                [0.,  0., C11,  0.,  0.,  0.],
+                [0.,  0.,  0., C44,  0.,  0.],
+                [0.,  0.,  0.,  0., C44,  0.],
+                [0.,  0.,  0.,  0.,  0., C44]
                ]
               )
         elif crystal_class == 'cubic':      # all classes
             C11, C12, C44 = stiff_consts
             C = np.array([
                 [C11, C12, C12,  0.,   0.,  0.],
-                [ 0., C11, C12,  0.,   0.,  0.],
-                [ 0.,  0., C11,  0.,   0.,  0.],
-                [ 0.,  0.,  0., C44,   0.,  0.],
-                [ 0.,  0.,  0.,  0.,  C44,  0.],
-                [ 0.,  0.,  0.,  0.,   0., C44]
+                [0., C11, C12,  0.,   0.,  0.],
+                [0.,  0., C11,  0.,   0.,  0.],
+                [0.,  0.,  0., C44,   0.,  0.],
+                [0.,  0.,  0.,  0.,  C44,  0.],
+                [0.,  0.,  0.,  0.,   0., C44]
                ]
               )
         elif crystal_class == 'hexagonal':      # all classes
@@ -89,33 +89,33 @@ class ElasticityTheory:
             C66 = .5 * (C11 - C12)
             C = np.array([
                 [C11, C12, C13,  0.,  0.,  0.],
-                [ 0., C11, C13,  0.,  0.,  0.],
-                [ 0.,  0., C33,  0.,  0.,  0.],
-                [ 0.,  0.,  0., C44,  0.,  0.],
-                [ 0.,  0.,  0.,  0., C44,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C11, C13,  0.,  0.,  0.],
+                [0.,  0., C33,  0.,  0.,  0.],
+                [0.,  0.,  0., C44,  0.,  0.],
+                [0.,  0.,  0.,  0., C44,  0.],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
-        elif crystal_class == 'tetragonal_1':       # classes 4mm, -42m, 422, 4/mmm
+        elif crystal_class == 'tetragonal_1':  # classes 4mm, -42m, 422, 4/mmm
             C11, C12, C13, C33, C44, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0.,  0.],
-                [ 0., C11, C13,  0.,  0.,  0.],
-                [ 0.,  0., C33,  0.,  0.,  0.],
-                [ 0.,  0.,  0., C44,  0.,  0.],
-                [ 0.,  0.,  0.,  0., C44,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C11, C13,  0.,  0.,  0.],
+                [0.,  0., C33,  0.,  0.,  0.],
+                [0.,  0.,  0., C44,  0.,  0.],
+                [0.,  0.,  0.,  0., C44,  0.],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
-        elif crystal_class == 'tetragonal_2':       # classes 4, -4, 4/m
+        elif crystal_class == 'tetragonal_2':    # classes 4, -4, 4/m
             C11, C12, C13, C33, C44, C66, C16 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0.,  C16],
-                [ 0., C11, C13,  0.,  0., -C16],
-                [ 0.,  0., C33,  0.,  0.,   0.],
-                [ 0.,  0.,  0., C44,  0.,   0.],
-                [ 0.,  0.,  0.,  0., C44,   0.],
-                [ 0.,  0.,  0.,  0.,  0.,  C66]
+                [0., C11, C13,  0.,  0., -C16],
+                [0.,  0., C33,  0.,  0.,   0.],
+                [0.,  0.,  0., C44,  0.,   0.],
+                [0.,  0.,  0.,  0., C44,   0.],
+                [0.,  0.,  0.,  0.,  0.,  C66]
                ]
               )
         elif crystal_class == 'trigonal_1':     # classes 32, -3m, 3m
@@ -123,11 +123,11 @@ class ElasticityTheory:
             C66 = .5 * (C11 - C12)
             C = np.array([
                 [C11, C12, C13,  C14,  0.,  0.],
-                [ 0., C11, C13, -C14,   0,  0.],
-                [ 0., 0.,  C33,   0.,  0.,  0.],
-                [ 0., 0.,   0.,  C44,  0.,  0.],
-                [ 0., 0.,   0.,   0., C44, C14],
-                [ 0., 0.,   0.,   0.,  0., C66]
+                [0., C11, C13, -C14,   0,  0.],
+                [0., 0.,  C33,   0.,  0.,  0.],
+                [0., 0.,   0.,  C44,  0.,  0.],
+                [0., 0.,   0.,   0., C44, C14],
+                [0., 0.,   0.,   0.,  0., C66]
                ]
               )
         elif crystal_class == 'trigonal_2':     # classes 3, -3
@@ -135,55 +135,55 @@ class ElasticityTheory:
             C66 = .5 * (C11 - C12)
             C = np.array([
                 [C11, C12, C13,  C14,  C15,   0.],
-                [ 0., C11, C13, -C14, -C15,   0.],
-                [ 0.,  0., C33,   0.,   0.,   0.],
-                [ 0.,  0.,  0.,  C44,   0., -C15],
-                [ 0.,  0.,  0.,   0.,  C44,  C14],
-                [ 0.,  0.,  0.,   0.,   0.,  C66]
+                [0., C11, C13, -C14, -C15,   0.],
+                [0.,  0., C33,   0.,   0.,   0.],
+                [0.,  0.,  0.,  C44,   0., -C15],
+                [0.,  0.,  0.,   0.,  C44,  C14],
+                [0.,  0.,  0.,   0.,   0.,  C66]
                ]
               )
         elif crystal_class == 'orthorhombic':       # all classes
             C11, C12, C13, C22, C23, C33, C44, C55, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0.,  0.],
-                [ 0., C22, C23,  0.,  0.,  0.],
-                [ 0.,  0., C33,  0.,  0.,  0.],
-                [ 0.,  0.,  0., C44,  0.,  0.],
-                [ 0.,  0.,  0.,  0., C55,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C22, C23,  0.,  0.,  0.],
+                [0.,  0., C33,  0.,  0.,  0.],
+                [0.,  0.,  0., C44,  0.,  0.],
+                [0.,  0.,  0.,  0., C55,  0.],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
         elif crystal_class == 'monoclinic_1':       # diad || x2
             C11, C12, C13, C22, C23, C33, C15, C25, C35, C44, C46, C55, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0., C15,  0.],
-                [ 0., C22, C23,  0., C25,  0.],
-                [ 0.,  0., C33,  0., C35,  0.],
-                [ 0.,  0.,  0., C44,  0., C46],
-                [ 0.,  0.,  0.,  0., C55,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C22, C23,  0., C25,  0.],
+                [0.,  0., C33,  0., C35,  0.],
+                [0.,  0.,  0., C44,  0., C46],
+                [0.,  0.,  0.,  0., C55,  0.],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
         elif crystal_class == 'monoclinic_2':       # diad || x3
             C11, C12, C13, C22, C23, C33, C16, C26, C36, C44, C45, C55, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0., C16],
-                [ 0., C22, C23,  0.,  0., C26],
-                [ 0.,  0., C33,  0.,  0., C36],
-                [ 0.,  0.,  0., C44, C45,  0.],
-                [ 0.,  0.,  0.,  0., C55,  0.],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C22, C23,  0.,  0., C26],
+                [0.,  0., C33,  0.,  0., C36],
+                [0.,  0.,  0., C44, C45,  0.],
+                [0.,  0.,  0.,  0., C55,  0.],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
         elif crystal_class == 'triclinic':      # all classes
             C11, C12, C13, C14, C15, C16, C22, C23, C24, C25, C26, C33, C34, C35, C36, C44, C45, C46, C55, C56, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13, C14, C15, C16],
-                [ 0., C22, C23, C24, C25, C26],
-                [ 0.,  0., C33, C34, C35, C36],
-                [ 0.,  0.,  0., C44, C45, C46],
-                [ 0.,  0.,  0.,  0., C55, C56],
-                [ 0.,  0.,  0.,  0.,  0., C66]
+                [0., C22, C23, C24, C25, C26],
+                [0.,  0., C33, C34, C35, C36],
+                [0.,  0.,  0., C44, C45, C46],
+                [0.,  0.,  0.,  0., C55, C56],
+                [0.,  0.,  0.,  0.,  0., C66]
                ]
               )
 
@@ -198,7 +198,9 @@ class ElasticityTheory:
 
         St = np.zeros((3, 3, 3, 3), dtype=float)
 
-        rel = {'00': 0, '11': 1, '22': 2, '12': 3, '21': 3, '02': 4, '20': 4, '01': 5, '10': 5}
+        rel = {'00': 0, '11': 1, '22': 2,
+               '12': 3, '21': 3, '02': 4, '20': 4,
+               '01': 5, '10': 5}
 
         for i in range(3):
             for j in range(3):
@@ -208,14 +210,15 @@ class ElasticityTheory:
                         n_str = str(k) + str(l)
                         m = rel[m_str]
                         n = rel[n_str]
-                        if (m<3 and n<3):
+                        if (m < 3 and n < 3):
                             St[i, j, k, l] = S[m, n]
-                        elif (m>=3 and n>=3):
+                        elif (m >= 3 and n >= 3):
                             St[i, j, k, l] = .25 * S[m, n]
                         else:
                             St[i, j, k, l] = .5 * S[m, n]
 
         return St
+
 
 class DirectionalProperties(ElasticityTheory):
 
@@ -320,10 +323,3 @@ class DebyeGruneisen(VRH):
 class Elasticity(DirectionalProperties, VRH):
 
     pass
-
-
-if __name__ == '__main__':
-    solido = Elasticity('tetragonal_1', 288.7, 133.6, 76.7, 283.0, 102.5, 157.9)
-    print(solido.YoungModulus([1, 0, 0]))
-    solido.VRH()
-    print(solido.YoungModulus, solido.BulkModulus, solido.ShearModulus, solido.PoissonRatio)
