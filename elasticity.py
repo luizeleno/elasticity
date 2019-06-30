@@ -315,11 +315,11 @@ class VRH(ElasticityTheory):
         self.PoissonRatio = (3. * B - 2. * G) / 2. / (3. * B + G)
 
 
-class DebyeGruneisen(VRH):
-
-    pass
-
-
-class Elasticity(DirectionalProperties, VRH):
-
-    pass
+#class DebyeGruneisen(VRH):
+#
+#    pass
+#
+#
+#class Elasticity(DirectionalProperties, VRH):
+#
+#    pass
