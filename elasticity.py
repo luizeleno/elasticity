@@ -14,6 +14,43 @@ import numpy.linalg as la
     University of Sao Paulo
 '''
 
+class Input:
+    def __init__(self, archive):
+        self.archive=archive
+        with open(self.archive) as a:
+            self.lines=list(a)
+            self.c11,self.c12,self.c13,self.c14,self.c15,self.c16=[float(n) for n in list(self.lines[15].split())]
+            self.c21,self.c22,self.c23,self.c24,self.c25,self.c26=[float(n) for n in list(self.lines[16].split())]
+            self.c31,self.c32,self.c33,self.c34,self.c35,self.c36=[float(n) for n in list(self.lines[17].split())]
+            self.c41,self.c42,self.c43,self.c44,self.c45,self.c46=[float(n) for n in list(self.lines[18].split())]
+            self.c51,self.c52,self.c53,self.c54,self.c55,self.c56=[float(n) for n in list(self.lines[19].split())]
+            self.c61,self.c62,self.c63,self.c64,self.c65,self.c66=[float(n) for n in list(self.lines[20].split())]
+
+            self.compmat=[[self.c11,self.c12,self.c13,self.c14,self.c15,self.c16],
+                          [self.c21,self.c22,self.c23,self.c24,self.c25,self.c26],
+                          [self.c31,self.c32,self.c33,self.c34,self.c35,self.c36],
+                          [self.c41,self.c42,self.c43,self.c44,self.c45,self.c46],
+                          [self.c51,self.c52,self.c53,self.c54,self.c55,self.c56],
+                          [self.c61,self.c62,self.c63,self.c64,self.c65,self.c66]]
+            if "Isotropic" in list(self.lines[4].split()):
+                self.crystalclass='Isotropic'
+            if "Cubic" in list(self.lines[4].split()):
+                self.crystalclass='Cubic'
+            if "Hexagonal" in list(self.lines[4].split()):
+                self.crystalclass='Hexagonal'
+            if "Trigonal" in list(self.lines[4].split()):
+                pass
+                #checar como o ElaStic chama os 2 tipos
+            if "Tetragonal" in list(self.lines[4].split()):
+                pass
+                #checar como o ElaStic chama os 2 tipos
+            if "Monoclinic" in list(self.lines[4].split()):
+                pass
+                #checar como o ElaStic chama os 2 tipos
+            if "Orthorhombic" in list(self.lines[4].split()):
+                self.crystalclass='Orthorhombic'
+            if "Triclinic" in list(self.lines[4].split()):
+                self.crystalclass='Triclinic'
 
 class ElasticityTheory:
 
