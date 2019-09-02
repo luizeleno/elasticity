@@ -39,14 +39,20 @@ class Input:
             if "Hexagonal" in list(self.lines[4].split()):
                 self.crystalclass='Hexagonal'
             if "Trigonal" in list(self.lines[4].split()):
-                pass
-                #checar como o ElaStic chama os 2 tipos
+                if 'I' in list(self.lines[4].split()):
+                    self.crystalclass='Trigonal I'
+                else:
+                    self.crystalclass='Trigonal II'
             if "Tetragonal" in list(self.lines[4].split()):
-                pass
-                #checar como o ElaStic chama os 2 tipos
+                if 'I' in list(self.lines[4].split()):
+                    self.crystalclass='Tetragonal I'
+                else:
+                    self.crystalclass='Tetragonal II'
             if "Monoclinic" in list(self.lines[4].split()):
-                pass
-                #checar como o ElaStic chama os 2 tipos
+                if 'I' in list(self.lines[4].split()):
+                    self.crystalclass='Monoclinic I'
+                else:
+                    self.crystalclass='Monoclinic II'
             if "Orthorhombic" in list(self.lines[4].split()):
                 self.crystalclass='Orthorhombic'
             if "Triclinic" in list(self.lines[4].split()):
