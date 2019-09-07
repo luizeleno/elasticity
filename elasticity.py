@@ -44,12 +44,11 @@ class ElasticityTheory:
                                 'orthorhombic': 9, 'monoclinic_1': 13,
                                 'monoclinic_2': 13, 'triclinic': 21}
 
-        if crystal_class not in self.crystal_classes:
+        if crystal_class not in self.crystal_classes.keys():
             raise KeyError('Unknown crystal class: %s. Use: %s' % (crystal_class, [s for s in self.crystal_classes]))
 
         self.crystal_class = crystal_class
         self.nconsts = self.crystal_classes[crystal_class]
-
         self.C = self.StiffnessMatrix(crystal_class, *stiff_consts)
         self.S = self.ComplianceMatrix(self.C)
         self.St = self.ComplianceTensor(self.S)
