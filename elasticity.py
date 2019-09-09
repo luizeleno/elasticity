@@ -232,7 +232,7 @@ class DirectionalProperties(ElasticityTheory):
         as a function of strain/stress direction l and normal direction n
     '''
 
-    def BulkModulus(self, l):
+    def LinearCompressibility(self, l):
 
         B = 0.
         for i in range(3):
