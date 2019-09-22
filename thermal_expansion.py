@@ -12,6 +12,11 @@ AVOGADRO = constants.Avogadro
 PLANCK = constants.Planck
 REDUCED_PLANCK = constants.hbar
 R = constants.gas_constant
+RY_J = constants.physical_constants[ "Rydberg constant times hc in J"]
+AU = constants.physical_constants["Bohr radius"]
+mass_unit = constants.physical_constants["atomic mass constant"]
+
+CONV_FACTOR = 10**9*AU[0]**3/RY_J[0]
 
 class EOS():
     '''
@@ -43,7 +48,7 @@ class EOS():
 
     def birch_murnaghan(self, V, *parameters):
         E0, B0, Bp, V0 = parameters
-        return E0 + (9/16*B0*B0) * (Bp*((V0/V)**(2./3)-1)**3 + 
+        return E0 + (9/16*B0*V0) * (Bp*((V0/V)**(2./3)-1)**3 + 
                     (6-4*(V0/V)**(2./3))*((V0/V)**(2./3)-1)**2)
 
     #Fit of the equations of state
@@ -69,11 +74,11 @@ class Debye():
         the "elasticity" module.
     '''
 
-    def __init__(self, G, B, density, molar_volume):
-        self.G = G
-        self.B = B
-        self.density = density
-        self.molar_volume = molar_volume
+    def __init__(self, G, B, density, atomic_mass):
+        self.G = G*1e9
+        self.B = B*1e9
+        self.density = density*1000
+        self.molar_volume = AVOGADRO*atomic_mass*mass_unit[0]/self.density
         self.theta0 = self.temp_debye0()
 
     #The Debye sound velocity
@@ -84,8 +89,8 @@ class Debye():
 
     #The Debye temperature by the Debye Model
     def temp_debye0(self):
-        return (PLANCK/BOLTZMANN) * self.sound_velocity() * \
-                      ((6*PI*AVOGADRO)/self.molar_volume) ** (1./3)
+        return (REDUCED_PLANCK/BOLTZMANN) * self.sound_velocity() * \
+                      ((6*PI**2*AVOGADRO)/self.molar_volume) ** (1./3)
 
 
 class QuasiHarmonic():
@@ -108,7 +113,7 @@ class QuasiHarmonic():
 
     #The Debye temperature in the Debye-Gruneisen model
     def theta(self, V):
-        return self.theta0 * (self.V0/V)**self.gru_coef()
+        return self.theta0 * ((self.V0/V)**self.gru_coef())
 
     #The Debye function
     def integrand_debye(self, x):
@@ -120,8 +125,8 @@ class QuasiHarmonic():
 
     #The vibrational energy in the quasi-harmonic approximation
     def F_vib(self, V):
-        return 9/8*BOLTZMANN*self.theta(V) + BOLTZMANN*self.T * \
-                (3 * np.log(1 - np.exp(-self.theta(V)/self.T)) - self.debye_func(V))
+        return 1/RY_J[0]*(9/8*BOLTZMANN*self.theta(V) + BOLTZMANN*self.T * \
+                (3 * np.log(1 - np.exp(-self.theta(V)/self.T)) - self.debye_func(V)))
     
     #Calculation of the Helmholtz free energy
     def F(self, V):
@@ -145,12 +150,16 @@ class QuasiHarmonic():
     def theta_eq(self):
         return self.theta(self.V_min())
 
+    def debye_func_eq(self):
+        I = quad(self.integrand_debye, 0, self.theta_eq()/self.T)
+        return I[0] * 3 * (self.T/self.theta_eq())**3
+
     #Bulk modulus after the thermal expansion
     def bulk_modulus(self):
         #variables
         theta = self.theta_eq()
         gamma = self.gru_coef()
-        D = self.debye_func(self.V_min)
+        D = self.debye_func_eq()
         v = self.V0/self.V_min()
         if self.method == "Murnaghan":
             B = self.B0*v**self.Bp + 1/self.V_min() * \
@@ -167,22 +176,22 @@ class QuasiHarmonic():
             B = self.B0*v**self.Bp + 1/self.V_min() * \
                 (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
                 (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
-        return B
+        return B/CONV_FACTOR
 
     #The specific heat at constant volume
     def integrand_heat(self, x):
         return ((x**4) * np.exp(x)) / ((np.exp(x) - 1)**2)
 
-    def heat_debye(self):
+    def heat_volume(self):
         I = quad(self.integrand_heat,0,self.theta_eq()/self.T)
-        return I[0] * (9*AVOGADRO*BOLTZMANN) * (self.T/self.theta_eq())**3
+        return I[0] * 9 * (self.T/self.theta_eq())**3
 
     #Thermal expansion coefficient at constant volume
     def thermal_coef(self):
-        return self.gru_coef()*self.heat_debye()/self.V_min()/self.bulk_modulus()
+        return 1/AVOGADRO * (self.gru_coef()*self.heat_volume()/
+                (self.V_min()*AU[0]**3)/(self.bulk_modulus()*1e9))
 
     #The specific heat at constant pressure
     def heat_presure(self):
-        return self.heat_debye() + self.thermal_coef()**2*self.bulk_modulus()*self.V_min()*self.T
-
-
+        return self.heat_volume() + self.thermal_coef()**2*self.bulk_modulus()*1e9* \
+                self.V_min()*AU[0]**3*self.T*AVOGADRO
