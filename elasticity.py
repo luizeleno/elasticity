@@ -14,50 +14,6 @@ import numpy.linalg as la
     University of Sao Paulo
 '''
 
-class Input:
-    def __init__(self, archive):
-        self.archive=archive
-        with open(self.archive) as a:
-            self.lines=list(a)
-            self.c11,self.c12,self.c13,self.c14,self.c15,self.c16=[float(n) for n in list(self.lines[15].split())]
-            self.c21,self.c22,self.c23,self.c24,self.c25,self.c26=[float(n) for n in list(self.lines[16].split())]
-            self.c31,self.c32,self.c33,self.c34,self.c35,self.c36=[float(n) for n in list(self.lines[17].split())]
-            self.c41,self.c42,self.c43,self.c44,self.c45,self.c46=[float(n) for n in list(self.lines[18].split())]
-            self.c51,self.c52,self.c53,self.c54,self.c55,self.c56=[float(n) for n in list(self.lines[19].split())]
-            self.c61,self.c62,self.c63,self.c64,self.c65,self.c66=[float(n) for n in list(self.lines[20].split())]
-
-            self.compmat=[[self.c11,self.c12,self.c13,self.c14,self.c15,self.c16],
-                          [self.c21,self.c22,self.c23,self.c24,self.c25,self.c26],
-                          [self.c31,self.c32,self.c33,self.c34,self.c35,self.c36],
-                          [self.c41,self.c42,self.c43,self.c44,self.c45,self.c46],
-                          [self.c51,self.c52,self.c53,self.c54,self.c55,self.c56],
-                          [self.c61,self.c62,self.c63,self.c64,self.c65,self.c66]]
-            if "Isotropic" in list(self.lines[4].split()):
-                self.crystalclass='Isotropic'
-            if "Cubic" in list(self.lines[4].split()):
-                self.crystalclass='Cubic'
-            if "Hexagonal" in list(self.lines[4].split()):
-                self.crystalclass='Hexagonal'
-            if "Trigonal" in list(self.lines[4].split()):
-                if 'I' in list(self.lines[4].split()):
-                    self.crystalclass='Trigonal I'
-                else:
-                    self.crystalclass='Trigonal II'
-            if "Tetragonal" in list(self.lines[4].split()):
-                if 'I' in list(self.lines[4].split()):
-                    self.crystalclass='Tetragonal I'
-                else:
-                    self.crystalclass='Tetragonal II'
-            if "Monoclinic" in list(self.lines[4].split()):
-                if 'I' in list(self.lines[4].split()):
-                    self.crystalclass='Monoclinic I'
-                else:
-                    self.crystalclass='Monoclinic II'
-            if "Orthorhombic" in list(self.lines[4].split()):
-                self.crystalclass='Orthorhombic'
-            if "Triclinic" in list(self.lines[4].split()):
-                self.crystalclass='Triclinic'
-
 class ElasticityTheory:
 
     '''
@@ -151,7 +107,7 @@ class ElasticityTheory:
                ]
               )
         elif crystal_class == 'tetragonal_2':    # classes 4, -4, 4/m
-            C11, C12, C13, C33, C44, C66, C16 = stiff_consts
+            C11, C12, C13, C16, C33, C44, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0.,  C16],
                 [0., C11, C13,  0.,  0., -C16],
@@ -197,7 +153,7 @@ class ElasticityTheory:
                ]
               )
         elif crystal_class == 'monoclinic_1':       # diad || x2
-            C11, C12, C13, C22, C23, C33, C15, C25, C35, C44, C46, C55, C66 = stiff_consts
+            C11, C12, C13, C15, C22, C23, C25, C33, C35, C44, C46, C55, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0., C15,  0.],
                 [0., C22, C23,  0., C25,  0.],
@@ -208,7 +164,7 @@ class ElasticityTheory:
                ]
               )
         elif crystal_class == 'monoclinic_2':       # diad || x3
-            C11, C12, C13, C22, C23, C33, C16, C26, C36, C44, C45, C55, C66 = stiff_consts
+            C11, C12, C13, C16, C22, C23, C26, C33, C36, C44, C45, C55, C66 = stiff_consts
             C = np.array([
                 [C11, C12, C13,  0.,  0., C16],
                 [0., C22, C23,  0.,  0., C26],
@@ -366,3 +322,57 @@ class DebyeGruneisen(VRH):
 class Elasticity(DirectionalProperties, VRH):
 
     pass
+
+class Crystal(Elasticity):
+
+    def elasticinput(self,archive):
+        self.archive=archive
+        with open(self.archive) as a:
+            self.lines=list(a)
+            self.c11,self.c12,self.c13,self.c14,self.c15,self.c16=[float(n) for n in list(self.lines[15].split())]
+            self.c21,self.c22,self.c23,self.c24,self.c25,self.c26=[float(n) for n in list(self.lines[16].split())]
+            self.c31,self.c32,self.c33,self.c34,self.c35,self.c36=[float(n) for n in list(self.lines[17].split())]
+            self.c41,self.c42,self.c43,self.c44,self.c45,self.c46=[float(n) for n in list(self.lines[18].split())]
+            self.c51,self.c52,self.c53,self.c54,self.c55,self.c56=[float(n) for n in list(self.lines[19].split())]
+            self.c61,self.c62,self.c63,self.c64,self.c65,self.c66=[float(n) for n in list(self.lines[20].split())]
+
+            if "Isotropic" in list(self.lines[4].split()):
+                self.crystal_class='isotropic'
+                stiffconsts=[self.c11,self.c12]
+            if "Cubic" in list(self.lines[4].split()):
+                self.crystal_class='cubic'
+                stiffconsts=[self.c11,self.c12,self.c44]
+            if "Hexagonal" in list(self.lines[4].split()):
+                self.crystal_class='hexagonal'
+                stiffconsts=[self.c11,self.c12,self.c13,self.c33,self.c44]
+            if "Trigonal" in list(self.lines[4].split()):
+                if 'I' in list(self.lines[4].split()):
+                    self.crystal_class='trigonal_1'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c33,self.c44]
+                else:
+                    self.crystal_class='trigonal_2'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c15,self.c44]
+            if "Tetragonal" in list(self.lines[4].split()):
+                if 'I' in list(self.lines[4].split()):
+                    self.crystal_class='tetragonal _1'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c33,self.c44,self.c66]
+                else:
+                    self.crystal_class='tetragonal_2'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c16,self.c33,self.c44,self.c66]
+            if "Monoclinic" in list(self.lines[4].split()):
+                if 'I' in list(self.lines[4].split()):
+                    self.crystal_class='monoclinic_1'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c15,self.c22,self.c23,self.c25,self.c33,self.c35,self.c44,self.c55,self.c66]
+                else:
+                    self.crystal_class='monoclinic_2'
+                    stiffconsts=[self.c11,self.c12,self.c13,self.c16,self.c22,self.c23,self.c26,self.c33,self.c36,self.c44,self.c45,self.c55,self.c66]
+            if "Orthorhombic" in list(self.lines[4].split()):
+                self.crystal_class='orthorhombic'
+                stiffconsts=[self.c11,self.c12,self.c13,self.c22,self.c23,self.c33,self.c44,self.c55,self.c66]
+
+            if "Triclinic" in list(self.lines[4].split()):
+                self.crystal_class='triclinic'
+                stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c15,self.c16,self.c22,self.c23,self.c24,self.c25,self.c26,self.c33,self.c34,self.c35,self.c36,self.c44,self.c45,self.c46,self.c55,self.c56,self.c66]
+        self.C = self.StiffnessMatrix(self.crystal_class, stiffconsts)
+        self.S = self.ComplianceMatrix(self.C)
+        self.St = self.ComplianceTensor(self.S)
