@@ -313,12 +313,3 @@ class VRH(ElasticityTheory):
         self.YoungModulus = 9. * B * G / (3. * B + G)
         self.PoissonRatio = (3. * B - 2. * G) / 2. / (3. * B + G)
 
-
-#class DebyeGruneisen(VRH):
-#
-#    pass
-#
-#
-#class Elasticity(DirectionalProperties, VRH):
-#
-#    pass

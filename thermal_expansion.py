@@ -98,11 +98,11 @@ class QuasiHarmonic():
         Thermal expansion of the material, using the quasi-harmonic approximation.
     '''
 
-    def __init__(self, T, G, B, density, molar_volume, chi, energies, volumes, method = "Murnaghan"):
+    def __init__(self, T, G, B, density, atomic_mass, chi, energies, volumes, poisson, method = "Murnaghan"):
         self.T = T
         self.chi = chi
         self.method = method
-        self.debye_class = Debye(G, B, density, molar_volume)
+        self.debye_class = Debye(G, B, density, atomic_mass)
         self.theta0 = self.debye_class.theta0
         self.eos_class = EOS(energies, volumes)
         self.E0, self.B0, self.Bp, self.V0 = self.eos_class.fit_eos()
@@ -178,6 +178,10 @@ class QuasiHarmonic():
                 (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
         return B/CONV_FACTOR
 
+    #Calculation of the Young Modulus
+    def young_modulus(self, poisson):
+        return 3*self.bulk_modulus()/(1-2*poisson)
+
     #The specific heat at constant volume
     def integrand_heat(self, x):
         return ((x**4) * np.exp(x)) / ((np.exp(x) - 1)**2)
@@ -192,6 +196,6 @@ class QuasiHarmonic():
                 (self.V_min()*AU[0]**3)/(self.bulk_modulus()*1e9))
 
     #The specific heat at constant pressure
-    def heat_presure(self):
+    def heat_pressure(self):
         return self.heat_volume() + self.thermal_coef()**2*self.bulk_modulus()*1e9* \
                 self.V_min()*AU[0]**3*self.T*AVOGADRO
