@@ -53,3 +53,11 @@ def gpa_to_ry_au3(pressure):
 #Pressure conversion - Rydberg/(Bohr Radius^3) to Giga Pascal 
 def ry_au3_to_gpa(pressure):
     return pressure*CONV_FACTOR
+
+#Pressure conversion - Giga Pascal to Dyne/cm^2
+def gpa_to_ry_au3(pressure):
+    return pressure/10**(-10)
+
+#Pressure conversion - Dyne/cm^2 to Giga Pascal 
+def gpa_to_ry_au3(pressure):
+    return pressure*10**(-10)

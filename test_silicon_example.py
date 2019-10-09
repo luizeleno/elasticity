@@ -46,10 +46,15 @@ VRH = el.VRH(structure, C11, C12, C44)
 VRH.VRH()
 poisson = VRH.PoissonRatio
 
+print(VRH.PoissonRatio, VRH.BulkModulus, VRH.ShearModulus, VRH.YoungModulus)
+
+
 #EOS fit and plot
 eos_murnaghan = thermal.EOS(energies, volumes, method = "Murnaghan")
 eos_birch = thermal.EOS(energies, volumes, method = "Birch-Murnaghan")
 debye_temp = thermal.Debye(VRH.ShearModulus, VRH.BulkModulus,density, atomic_mass)
+
+print(debye_temp.temp_debye0())
 
 print("Murnaghan fit", eos_murnaghan.fit_eos())
 print("Birch fit", eos_birch.fit_eos())

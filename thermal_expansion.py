@@ -77,7 +77,7 @@ class Debye():
     def __init__(self, G, B, density, atomic_mass):
         self.G = G*1e9
         self.B = B*1e9
-        self.density = density*1000
+        self.density = density*1e3
         self.molar_volume = AVOGADRO*atomic_mass*mass_unit[0]/self.density
         self.theta0 = self.temp_debye0()
 
@@ -142,7 +142,7 @@ class QuasiHarmonic():
     #Mininmization of the Helmholtz free energy
     def V_min(self):
         m = minimize_scalar(self.F,   
-                            bracket=(0.9*self.V0, 1.1*self.V0),   
+                            bracket=(0.8*self.V0, 1.2*self.V0),   
                             method="brent")
         return m.x
 
@@ -160,23 +160,26 @@ class QuasiHarmonic():
         theta = self.theta_eq()
         gamma = self.gru_coef()
         D = self.debye_func_eq()
-        v = self.V0/self.V_min()
+        v = self.V0 / self.V_min()
+        B0 = self.B0 / (AU[0]**3/RY_J[0])
+        V_min = self.V_min()*AU[0]**3
+        #print(B0, self.V0, self.V_min(), theta, gamma)
         if self.method == "Murnaghan":
-            B = self.B0*v**self.Bp + 1/self.V_min() * \
+            B = B0*v**self.Bp + 1/V_min * \
                 (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
                 (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
         elif self.method == "Birch-Murnaghan":
-            B = 1/2*self.B0*(7*v**(7/3)-5*v**(5/3)) + 3/8*self.B0*(self.Bp-4) * \
-                (9*v**3-14*v**(7/3) + 5*v**(5/3)) + 1/self.V_min() * \
+            B = 1/2*B0*(7*v**(7/3)-5*v**(5/3)) + 3/8*B0*(self.Bp-4) * \
+                (9*v**3-14*v**(7/3) + 5*v**(5/3)) + 1/V_min * \
                 (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
                 (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
         else:
             print("Only the Murnaghan ad Birch-Murnaghan equations are implemented. \
                     We run with Murnaghan.")
-            B = self.B0*v**self.Bp + 1/self.V_min() * \
+            B = B0*v**self.Bp + 1/V_min * \
                 (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
                 (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
-        return B/CONV_FACTOR
+        return B/1e9
 
     #Calculation of the Young Modulus
     def young_modulus(self, poisson):
