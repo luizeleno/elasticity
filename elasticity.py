@@ -287,6 +287,7 @@ class VRH(ElasticityTheory):
         skl = self.S[3, 3] + self.S[4, 4] + self.S[5, 5]
         self.BR = 1. / (sii + 2. * sij)
         self.GR = 15. / (4. * sii - sij + 3. * skl)
+        print("Poisson Reuss", (3. * self.BR - 2. *  self.GR) / 2. / (3. * self.BR +  self.GR))
 
     def Voigt(self):
 
@@ -295,6 +296,7 @@ class VRH(ElasticityTheory):
         ckl = self.C[3, 3] + self.C[4, 4] + self.C[5, 5]
         self.BV = (cii + 2. * cij) / 9.
         self.GV = (cii - cij + 3. * ckl) / 15.
+        print("Poisson Voigt", (3. * self.BV - 2. * self.GV) / 2. / (3. * self.BV + self.GV))
 
     def Hill(self):
 

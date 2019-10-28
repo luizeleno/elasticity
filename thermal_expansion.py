@@ -4,26 +4,54 @@ from scipy.optimize import minimize_scalar
 from scipy.optimize import curve_fit
 import numpy as np
 
-#physical constants
+#Physical constants
 from scipy import constants
 BOLTZMANN = constants.Boltzmann
 PI = constants.pi
 AVOGADRO = constants.Avogadro
-PLANCK = constants.Planck
 REDUCED_PLANCK = constants.hbar
 R = constants.gas_constant
-RY_J = constants.physical_constants[ "Rydberg constant times hc in J"]
-AU = constants.physical_constants["Bohr radius"]
-mass_unit = constants.physical_constants["atomic mass constant"]
+RY_J = constants.physical_constants[ "Rydberg constant times hc in J"][0]
+AU = constants.physical_constants["Bohr radius"][0]
+MASS_UNIT = constants.physical_constants["atomic mass constant"][0]
+CONV_FACTOR = 10**9*AU**3/RY_J
 
-CONV_FACTOR = 10**9*AU[0]**3/RY_J[0]
+'''
+Default units:
+ ----------
+ [temperatures] = `Kelvin`
+ [volume] = `cubic Bohr radius`
+            r'1au$^3$' = 0.14818471r'A$^3$'
+ [energy] = `Rydberg`
+            1Ry = 2.179872325e-18J
+ [elastic properties] = `giga Pascal`
+            1GPa = 1e9Pa
+ [specific heats] = `factor of R`
+            1R = 8.3144598r'Jmol$^{-1}$K$^{-1}$'
+ [thermal expansion coefficient] = `1e-6r'K$^{-1}$'`
+'''
+
 
 class EOS():
     '''
-        Calculation of the equations of state for solids:
-        - Murnaghan equation
-        - Birch-Murnaghan equation
-        It is necessary to provide the volumes and energies from experimental data.
+    Implemented equations of state (EOS) for solids:
+    ----------
+    >>> Murnaghan
+    >>> Birch-Murnaghan
+
+    Entrance data:
+    ----------
+    >>> energies = experimental or ab initio energies
+    >>> volumes = experimental or ab initio volumes
+    >>> method = chosen equation of state (eos):
+                Murnaghan (default) or Birch-Murnaghan
+
+    Calculated parameters from the eos fit:
+    ----------
+    >>> r'E$_0$': energy
+    >>> r'B$_0$': bulk modulus
+    >>> r'B$_{p0}$': first derivative of the bulk modulus
+    >>> r'V$_0$': volume
     '''
 
     def __init__(self, energies, volumes, method = "Murnaghan"):
@@ -32,8 +60,10 @@ class EOS():
         self.method = method
         self.E0, self.B0, self.Bp, self.V0 = self.fit_eos()
 
-    #Polynomial fit to guess the initial parameters for the equations of state
     def polynomial_fit(self):
+        '''
+        Second order polynomial fit for initial guess of the eos parameters.
+        '''
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         V0 = -b/(2*a)
         B0 = 2*a*V0
@@ -41,164 +71,313 @@ class EOS():
         Bp = 2. #assumption
         return E0, B0, Bp, V0
 
-    #Equations of state
     def murnaghan(self, V, *parameters):
+        '''
+        Murnaghan EOS.
+        '''
         E0, B0, Bp, V0 = parameters 
         return E0 + (B0*V0)/(Bp-1) + ((B0*V)/Bp) * (1+((V0/V)**Bp)/(Bp-1))
 
     def birch_murnaghan(self, V, *parameters):
+        '''
+        Birch-Murnaghan EOS.
+        '''
         E0, B0, Bp, V0 = parameters
         return E0 + (9/16*B0*V0) * (Bp*((V0/V)**(2./3)-1)**3 + 
                     (6-4*(V0/V)**(2./3))*((V0/V)**(2./3)-1)**2)
 
-    #Fit of the equations of state
+    #Fit of the EOSs
     def fit_eos(self):
-        if self.method == "Murnaghan":
-            popt, pcov = curve_fit(self.murnaghan, self.volumes, self.energies, 
-                         p0 = self.polynomial_fit(), method = 'trf')
-        elif self.method == "Birch-Murnaghan":
-            popt, pcov = curve_fit(self.birch_murnaghan, self.volumes, self.energies, 
-                         p0 = self.polynomial_fit(), method = 'trf')
+        '''
+        Data fit with the curve_fit method from Scipy.
+        The fit is done using the chosen EOS and the initial guess for the
+        parameters from the polynomial fit.
+        '''
+        if self.method == "Birch-Murnaghan":
+            popt, pcov = curve_fit(self.birch_murnaghan, self.volumes, \
+                        self.energies, p0 = self.polynomial_fit(), \
+                        method = 'trf')
         else:
-            popt, pcov = curve_fit(self.murnaghan, self.volumes, self.energies, 
-                         p0 = self.polynomial_fit(), method = 'trf')
-            print("Only the Murnaghan ad Birch-Murnaghan equations are implemented. \
-                    We run with Murnaghan")
+            popt, pcov = curve_fit(self.murnaghan, self.volumes, 
+                        self.energies, p0 = self.polynomial_fit(), 
+                        method = 'trf')
         return popt[0], popt[1], popt[2], popt[3]
 
 class Debye():
     '''
-        Implementation of the Debye Model, considering the VRH Theory.
-        The shear modulus GH and the bulk modulus BH can be inserted 
-        by the user or can be calculated from the VRH class, implemented in
-        the "elasticity" module.
+        Implementation of the Debye Model, considering the elasticity theory.
+        Entrance parameters:
+        ----------
+        >>> G = Shear Modulus
+        >>> B = Bulk Modulus
+        >>> r'V$_0$' = cell unit volume
+        >>> Z =  number of formula units in the unit cell
+        >>> atomic_mass = atomic mass
+        Results:
+        ----------
+        >>> Speed of sound
+        >>> Debye temperature
     '''
 
-    def __init__(self, G, B, density, atomic_mass):
+    def __init__(self, G, B, V0, Z, atomic_mass):
         self.G = G*1e9
         self.B = B*1e9
-        self.density = density*1e3
-        self.molar_volume = AVOGADRO*atomic_mass*mass_unit[0]/self.density
-        self.theta0 = self.temp_debye0()
+        self.molar_volume = (V0*AU**3) * AVOGADRO / Z
+        self.density = atomic_mass * 1e-3 / self.molar_volume
 
-    #The Debye sound velocity
     def sound_velocity(self):
+        '''
+        Debye speed of sound.
+        Calculation using de the elastic properties B and G.
+        '''
         v_trans = np.sqrt(self.G/self.density)
-        v_long = np.sqrt((3*self.B + 4*self.G)/(3*self.density))
-        return (1/3 * (2/v_trans**3 + 1/v_long**3)) ** (-1./3)
+        v_long = np.sqrt((3.*self.B + 4.*self.G)/(3*self.density))
+        return np.power(1./3.*(2./v_trans**3 + 1./v_long**3), -1./3.)
 
-    #The Debye temperature by the Debye Model
-    def temp_debye0(self):
+    def debye_temp(self):
+        '''
+        Debye temperature (Debye Model)
+        '''
         return (REDUCED_PLANCK/BOLTZMANN) * self.sound_velocity() * \
-                      ((6*PI**2*AVOGADRO)/self.molar_volume) ** (1./3)
-
+            np.power((6*np.power(PI, 2)*AVOGADRO)/self.molar_volume, 1./3)
 
 class QuasiHarmonic():
-    '''
-        Thermal expansion of the material, using the quasi-harmonic approximation.
-    '''
 
-    def __init__(self, T, G, B, density, atomic_mass, chi, energies, volumes, poisson, method = "Murnaghan"):
-        self.T = T
-        self.chi = chi
+    def __init__(self, chi, poisson, debye_temp, energies, volumes,
+                 method = "Murnaghan"):
+        #In parameters
         self.method = method
-        self.debye_class = Debye(G, B, density, atomic_mass)
-        self.theta0 = self.debye_class.theta0
+        self.chi = chi
+        self.poisson = poisson
+        self.theta0 = debye_temp
         self.eos_class = EOS(energies, volumes)
         self.E0, self.B0, self.Bp, self.V0 = self.eos_class.fit_eos()
- 
-    #The Gruneisen parameter
+        #Used parameters
+        self.gamma = self.gru_coef()
+
     def gru_coef(self):
-        return (1+self.Bp)/2 - self.chi
+        '''
+        Gruneisen parameter.
+        '''
+        return (1+self.Bp) / 2 - self.chi
 
-    #The Debye temperature in the Debye-Gruneisen model
     def theta(self, V):
-        return self.theta0 * ((self.V0/V)**self.gru_coef())
+        '''
+        Debye temperature (Debye-Gruneisen model).
+        '''
+        return self.theta0 * np.power(self.V0/V, self.gamma)
 
-    #The Debye function
     def integrand_debye(self, x):
-        return x**3 / (np.exp(x) - 1)
+        '''
+        Integrand of Debye function.
+        '''
+        return np.power(x,3) / (np.exp(x)-1)
 
-    def debye_func(self, V):
-        I = quad(self.integrand_debye, 0, self.theta(V)/self.T)
-        return I[0] * 3 * (self.T/self.theta(V))**3
+    def debye_func(self, V, temp):
+        '''
+        Debye Function.
+        '''
+        I = quad(self.integrand_debye, 0, self.theta(V)/temp)
+        return I[0] * 3. * np.power(temp/self.theta(V), 3)
 
-    #The vibrational energy in the quasi-harmonic approximation
-    def F_vib(self, V):
-        return 1/RY_J[0]*(9/8*BOLTZMANN*self.theta(V) + BOLTZMANN*self.T * \
-                (3 * np.log(1 - np.exp(-self.theta(V)/self.T)) - self.debye_func(V)))
-    
-    #Calculation of the Helmholtz free energy
-    def F(self, V):
-        if self.method == "Murnaghan":
-            return self.F_vib(V) + self.eos_class.murnaghan(V, self.E0, self.B0, self.Bp, self.V0)
-        elif self.method == "Birch-Murnaghan":
-            return self.F_vib(V) + self.eos_class.birch_murnaghan(V, self.E0, self.B0, self.Bp, self.V0)
-        else:
-            print("Only the Murnaghan ad Birch-Murnaghan equations are implemented. \
-                    We run with Murnaghan.")            
-            return self.F_vib(V) + self.eos_class.murnaghan(V, self.E0, self.B0, self.Bp, self.V0)
+    def F_vib(self, V, temp):
+        '''
+        Helmholtz vibrational energy (quasi-harmonic approximation).
+        '''
+        return 1. / RY_J * (9./8.*BOLTZMANN*self.theta(V)+BOLTZMANN*temp* \
+            (3.*np.log(1-np.exp(-self.theta(V)/temp))-self.debye_func(V, temp)))
 
-    #Mininmization of the Helmholtz free energy
-    def V_min(self):
-        m = minimize_scalar(self.F,   
-                            bracket=(0.8*self.V0, 1.2*self.V0),   
+    def F(self, V, temp):
+        '''
+        Helmholtz free energy: vibrational energy + EOS energy.
+        The model does not consider the electronic contribution.
+        The EOS energy can be from Murnaghan or Birch-Murnaghan equations.
+        '''
+        if self.method == "Birch-Murnaghan":
+            return self.F_vib(V, temp) + \
+                self.eos_class.birch_murnaghan(V, self.E0, self.B0, self.Bp, self.V0)
+        else:        
+            return self.F_vib(V, temp) + \
+                self.eos_class.murnaghan(V, self.E0, self.B0, self.Bp, self.V0)
+
+    def V_min(self, temp):
+        '''
+        Minimization of the Helmholtz Free Energy (F) using the minimize_scalar
+        method from Scipy.
+        The result is the value of the volume that minimizes the energy F at a 
+        given temperature T.
+        '''
+        m = minimize_scalar(lambda x: self.F(x, temp),   
+                            bracket=(0.9*self.V0, 1.1*self.V0),   
                             method="brent")
         return m.x
-
-    #The Debye temperature at the new equilibrium position        
-    def theta_eq(self):
-        return self.theta(self.V_min())
-
-    def debye_func_eq(self):
-        I = quad(self.integrand_debye, 0, self.theta_eq()/self.T)
-        return I[0] * 3 * (self.T/self.theta_eq())**3
-
-    #Bulk modulus after the thermal expansion
-    def bulk_modulus(self):
-        #variables
-        theta = self.theta_eq()
-        gamma = self.gru_coef()
-        D = self.debye_func_eq()
-        v = self.V0 / self.V_min()
-        B0 = self.B0 / (AU[0]**3/RY_J[0])
-        V_min = self.V_min()*AU[0]**3
-        #print(B0, self.V0, self.V_min(), theta, gamma)
-        if self.method == "Murnaghan":
-            B = B0*v**self.Bp + 1/V_min * \
-                (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
-                (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
-        elif self.method == "Birch-Murnaghan":
+     
+    def bulk_modulus(self, vol, temp, theta, D):
+        '''
+            Bulk modulus calculated using the second derivative of the Helmholtz 
+            free energy with volume.
+            It is consider an variation of the bulk modulus with temperature.
+        '''
+        v = self.V0 / vol
+        B0 = self.B0 * 1e9 / CONV_FACTOR
+        if self.method == "Birch-Murnaghan":
             B = 1/2*B0*(7*v**(7/3)-5*v**(5/3)) + 3/8*B0*(self.Bp-4) * \
-                (9*v**3-14*v**(7/3) + 5*v**(5/3)) + 1/V_min * \
-                (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
-                (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
+                (9*v**3-14*v**(7/3) + 5*v**(5/3)) + 1/vol * \
+                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
+                (9*self.gamma**2*BOLTZMANN*theta)/(np.exp(theta/temp)-1))
         else:
-            print("Only the Murnaghan ad Birch-Murnaghan equations are implemented. \
-                    We run with Murnaghan.")
-            B = B0*v**self.Bp + 1/V_min * \
-                (9/8*BOLTZMANN*theta*gamma*(1+gamma)+3*(1-3*gamma)*BOLTZMANN*self.T*D + 
-                (9*gamma**2*BOLTZMANN*theta)/(np.exp(theta*self.T)-1))
-        return B/1e9
+            B = B0*v**self.Bp + 1/vol * \
+                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
+                (9*self.gamma**2*BOLTZMANN*theta)/(np.exp(theta/temp)-1))
+        return B / 1e9
 
-    #Calculation of the Young Modulus
-    def young_modulus(self, poisson):
-        return 3*self.bulk_modulus()/(1-2*poisson)
+    def young_modulus(self, poisson, B):
+        '''
+            Young Modulus, considering an constant Poisson coefficient.
+        '''
+        return 3 * B / (1-2*poisson)
 
-    #The specific heat at constant volume
     def integrand_heat(self, x):
-        return ((x**4) * np.exp(x)) / ((np.exp(x) - 1)**2)
+        '''
+            Specific heat integrand.
+        '''
+        return np.power(x, 4.) * np.exp(x) / np.power(np.exp(x)-1., 2.)
 
-    def heat_volume(self):
-        I = quad(self.integrand_heat,0,self.theta_eq()/self.T)
-        return I[0] * 9 * (self.T/self.theta_eq())**3
+    def heat_volume(self, vol, temp, theta):
+        '''
+            Specific heat at constant volume.
+        '''
+        I = quad(self.integrand_heat, 0, theta/temp)
+        return 9. * I[0] * np.power(temp/theta, 3)
 
-    #Thermal expansion coefficient at constant volume
-    def thermal_coef(self):
-        return 1/AVOGADRO * (self.gru_coef()*self.heat_volume()/
-                (self.V_min()*AU[0]**3)/(self.bulk_modulus()*1e9))
+    def thermal_coef(self, vol, B, cv):
+        '''
+            Thermal expansion coefficient at constant volume.
+        '''
+        return 1/AVOGADRO * self.gamma * cv / \
+            (vol*np.power(AU, 3)*B*1e9)
 
-    #The specific heat at constant pressure
-    def heat_pressure(self):
-        return self.heat_volume() + self.thermal_coef()**2*self.bulk_modulus()*1e9* \
-                self.V_min()*AU[0]**3*self.T*AVOGADRO
+    def heat_pressure(self, vol, temp, B, cv, alpha):
+        '''
+           Specific heat at constant pressure. 
+        '''
+        return cv + np.power(alpha, 2) * B * 1e9 * vol * AU**3 * temp * AVOGADRO
+
+class QuasiHarmonicVector(QuasiHarmonic):
+    '''
+        Thermal expansion of the material, using the quasi-harmonic 
+        approximation.
+
+        Entrance parameters:
+        ----------
+        >>> T = temperature
+        >>> chi = constant to calculate de poisson coefficient
+        >>> poisson = Poisson coefficient at 0K
+        >>> debye_temp = Debye temperature at 0K
+        >>> energies = energies at 0K
+        >>> volumes = volumes at 0K
+        >>> method = chosen equation of state (eos): 
+                     Murnaghan or Birch-Murnaghan
+
+        Dependency on others classes:
+        ----------
+        >>> thermal_expansion.EOS (required)
+        >>> thermal_expansion.Debye (optional)
+        >>> elasticity.VRH (optional)
+
+        Results:
+        ----------
+        >>> Vmin
+        >>> Fmin
+        >>> B
+        >>> E
+        >>> Theta
+        >>> alpha
+        >>> cv
+        >>> cp
+    '''
+
+    def __init__(self, T, chi, poisson, debye_temp, energies, volumes,
+                 method = "Murnaghan"):
+        #In parameters
+        self.method = method
+        self.chi = chi
+        self.poisson = poisson
+        self.theta0 = debye_temp
+        self.eos_class = EOS(energies, volumes)
+        self.E0, self.B0, self.Bp, self.V0 = self.eos_class.fit_eos()
+        self.T = T
+        #Out parameters
+        self.gamma = self.gru_coef()
+        self.Vmin = self.V_min_vec()
+        self.F = self.F_vec()
+        self.theta = self.theta_vec()
+        self.D = self.debye_func_vec()
+        self.B = self.bulk_modulus_vec()
+        self.E = self.young_modulus_vec()
+        self.cv = self.heat_volume_vec()
+        self.alpha = self.thermal_coef_vec()
+        self.cp = self.heat_pressure_vec()
+
+    def V_min_vec(self):
+        '''
+            Array of the minimum volume at the equilibrium points.
+        '''
+        return list(map(self.V_min, self.T))
+
+    def F_vec(self):
+        '''
+            Array of the Helmholtz free energy at the equilibrium points.
+        '''
+        return list(map(self.F, self.Vmin, self.T))
+
+    def theta_vec(self):
+        '''
+            Array of the Debye temperature at the equilibrium points.
+        '''
+        return list(map(self.theta, self.Vmin))
+
+    def debye_func_vec(self):
+        '''
+        Debye Function.
+        '''
+        t = self.theta/self.T
+        I = quad(self.integrand_debye, 0, t.all())
+        return I[0] * 3. * np.power(self.T/self.theta, 3)
+
+    def bulk_modulus_vec(self):
+        '''
+            Array of the bulk modulus at the equilibrium points.
+        '''
+        return list(map(lambda x, y, w, z: self.bulk_modulus(x, y, w, z),
+            self.Vmin, self.T, self.theta, self.D))
+
+    def young_modulus_vec(self):
+        '''
+            Array of the Young modulus at the equilibrium points.
+        '''
+        return list(map(lambda x: self.young_modulus(self.poisson, x), self.B))
+
+    def heat_volume_vec(self):
+        '''
+            Array of the specific heat at constant volume
+            at the equilibrium points.
+        '''
+        return list(map(lambda x, y, z: self.heat_volume(x, y, z),
+            self.Vmin, self.T, self.theta))
+
+    def thermal_coef_vec(self):
+        '''
+            Array of the thermal expansion coefficient at constant volume
+            at the equilibrium points.
+        '''
+        return list(map(lambda x, y, z: self.thermal_coef(x, y, z),
+            self.Vmin, self.B, self.cv))
+
+    def heat_pressure_vec(self):
+        '''
+            Array of the specific heat at constant pressure
+            at the equilibrium points.
+        '''
+        return list(map(lambda v, x, y, w, z: self.heat_pressure(v, x, y, w, z),
+            self.Vmin, self.T, self.B, self.cv, self.alpha))
