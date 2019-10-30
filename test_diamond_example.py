@@ -53,7 +53,9 @@ print("Birch fit: ", eos_birch.fit_eos())
 #Debye
 V0 = eos_murnaghan.fit_eos()[3]
 debye = thermal.Debye(VRH.ShearModulus, VRH.BulkModulus,V0 , Z, atomic_mass)
-print("Debye Temp: ", debye.debye_temp())
+print("Debye Temp: ", debye.debye_temp(),
+    '\n' "Density: ", debye.density,
+    '\n' "Molar volume: ", debye.molar_volume)
 
 #QuasiHarmonic
 debye_temp = debye.debye_temp()
@@ -73,21 +75,42 @@ df1 = DataFrame(data1, columns= ['Temperature', 'Cv Murnaghan', 'Cp Murnaghan', 
 #export_excel = df.to_excel (r'C:\\Users\\danie\\OneDrive\Documentos\\GitHub\\elasticity\\cp_data.xlsx', index = None, header=True) 
 print (df1)
 
-#Data
-qha2 = thermal.QuasiHarmonicVector(T, chi, poisson, debye_temp, 
-                            energies, volumes, method = 'Murnaghan')
+plt.figure(1)
+plt.autoscale(tight=False)
+plt.ticklabel_format(useOffset=False)
+plt.xlabel("Temperatura (K)")
+plt.ylabel("Calor específico [J/mol.K]")
+plt.plot(temperatures_exp, qha1.cp, color = 'g', label = r"c$_P$ calculado")
+plt.plot(temperatures_exp, cp_exp, color = 'r', label = r"c$_P$ experimental")
+plt.tight_layout()
+plt.legend(loc = 4)
+plt.show()
 
-data2 = {'Temperature': T, 
-        'Vmin': qha2.Vmin,
-        'F': qha2.F,
-        'Theta': qha2.theta,
-        'B': qha2.B,
-        'Alpha': qha2.alpha,
-        'Cv Murnaghan': qha2.cv,
-        'Cp Murnaghan': qha2.cp,
-        }
-df2 = DataFrame(data1, columns= ['Temperature', 'Vmin', 'F', 'Theta',
-                            'B', 'Alpha', 'Cv Murnaghan', 'Cp Murnaghan'])
+print('Temperature: ', temperatures_exp, 
+    '\n' 'Vmin: ', qha1.Vmin,
+    '\n' 'F: ', qha1.F,
+    '\n' 'Theta: ', qha1.Theta,
+    '\n' 'B: ', qha1.B,
+    '\n' 'Alpha: ', qha1.alpha,
+    '\n' 'Cv Murnaghan: ', qha1.cv,
+    '\n' 'Cp Murnaghan: ', qha1.cp)
+
+#Data
+#qha2 = thermal.QuasiHarmonicVector(T, chi, poisson, debye_temp, 
+#                            energies, volumes, method = 'Murnaghan')
+
+#data2 = {'Temperature': T, 
+#        'Vmin': qha2.Vmin,
+#        'F': qha2.F,
+#        'Theta': qha2.theta,
+#        'B': qha2.B,
+#        'Alpha': qha2.alpha,
+#        'Cv Murnaghan': qha2.cv,
+#        'Cp Murnaghan': qha2.cp,
+#        }
+#df2 = DataFrame(data1, columns= ['Temperature', 'Vmin', 'F', 'Theta',
+#                            'B', 'Alpha', 'Cv Murnaghan', 'Cp Murnaghan'])
 #export_excel = df.to_excel (r'C:\\Users\\danie\\OneDrive\Documentos\\GitHub\\elasticity\\cp_data.xlsx', index = None, header=True) 
-print (df2)
-print(time.time()-a)
+#print (df2)
+
+print('time to run: ', time.time()-a)

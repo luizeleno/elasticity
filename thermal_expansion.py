@@ -178,7 +178,7 @@ class QuasiHarmonic():
         Debye Function.
         '''
         I = quad(self.integrand_debye, 0, self.theta(V)/temp)
-        return I[0] * 3. * np.power(temp/self.theta(V), 3)
+        return 3. * I[0] * np.power(temp/self.theta(V), 3)
 
     def F_vib(self, V, temp):
         '''
@@ -248,20 +248,19 @@ class QuasiHarmonic():
             Specific heat at constant volume.
         '''
         I = quad(self.integrand_heat, 0, theta/temp)
-        return 9. * I[0] * np.power(temp/theta, 3)
+        return 9. * I[0] * AVOGADRO * BOLTZMANN * np.power(temp/theta, 3)
 
     def thermal_coef(self, vol, B, cv):
         '''
             Thermal expansion coefficient at constant volume.
         '''
-        return 1/AVOGADRO * self.gamma * cv / \
-            (vol*np.power(AU, 3)*B*1e9)
+        return 1/AVOGADRO * self.gamma * cv / (vol*(AU**3)*B*1e9)
 
     def heat_pressure(self, vol, temp, B, cv, alpha):
         '''
            Specific heat at constant pressure. 
         '''
-        return cv + np.power(alpha, 2) * B * 1e9 * vol * AU**3 * temp * AVOGADRO
+        return cv + np.power(alpha, 2) * B * 1e9 * vol * (AU**3) * temp * AVOGADRO
 
 class QuasiHarmonicVector(QuasiHarmonic):
     '''
@@ -284,6 +283,7 @@ class QuasiHarmonicVector(QuasiHarmonic):
         >>> thermal_expansion.EOS (required)
         >>> thermal_expansion.Debye (optional)
         >>> elasticity.VRH (optional)
+        >>> thermal_expansion.QuasiHarmonic
 
         Results:
         ----------
@@ -311,7 +311,7 @@ class QuasiHarmonicVector(QuasiHarmonic):
         self.gamma = self.gru_coef()
         self.Vmin = self.V_min_vec()
         self.F = self.F_vec()
-        self.theta = self.theta_vec()
+        self.Theta = self.theta_vec()
         self.D = self.debye_func_vec()
         self.B = self.bulk_modulus_vec()
         self.E = self.young_modulus_vec()
@@ -335,22 +335,22 @@ class QuasiHarmonicVector(QuasiHarmonic):
         '''
             Array of the Debye temperature at the equilibrium points.
         '''
-        return list(map(self.theta, self.Vmin))
+        return list(map(lambda x: self.theta(x), self.Vmin))
 
     def debye_func_vec(self):
         '''
         Debye Function.
         '''
-        t = self.theta/self.T
+        t = self.Theta/self.T
         I = quad(self.integrand_debye, 0, t.all())
-        return I[0] * 3. * np.power(self.T/self.theta, 3)
+        return I[0] * 3. * np.power(self.T/self.Theta, 3)
 
     def bulk_modulus_vec(self):
         '''
             Array of the bulk modulus at the equilibrium points.
         '''
         return list(map(lambda x, y, w, z: self.bulk_modulus(x, y, w, z),
-            self.Vmin, self.T, self.theta, self.D))
+            self.Vmin, self.T, self.Theta, self.D))
 
     def young_modulus_vec(self):
         '''
@@ -364,7 +364,7 @@ class QuasiHarmonicVector(QuasiHarmonic):
             at the equilibrium points.
         '''
         return list(map(lambda x, y, z: self.heat_volume(x, y, z),
-            self.Vmin, self.T, self.theta))
+            self.Vmin, self.T, self.Theta))
 
     def thermal_coef_vec(self):
         '''
