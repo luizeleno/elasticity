@@ -223,11 +223,13 @@ class QuasiHarmonic():
         if self.method == "Birch-Murnaghan":
             B = 1/2*B0*(7*v**(7/3)-5*v**(5/3)) + 3/8*B0*(self.Bp-4) * \
                 (9*v**3-14*v**(7/3) + 5*v**(5/3)) + 1/vol * \
-                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
+                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+
+                3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
                 (9*self.gamma**2*BOLTZMANN*theta)/(np.exp(theta/temp)-1))
         else:
             B = B0*v**self.Bp + 1/vol * \
-                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
+                (9/8*BOLTZMANN*theta*self.gamma*(1+self.gamma)+
+                3*(1-3*self.gamma)*BOLTZMANN*temp*D + 
                 (9*self.gamma**2*BOLTZMANN*theta)/(np.exp(theta/temp)-1))
         return B / 1e9
 

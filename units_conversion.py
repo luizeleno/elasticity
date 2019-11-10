@@ -12,7 +12,7 @@ EH_J = constants.physical_constants["Hartree energy"][0]
 AU = constants.physical_constants["Bohr radius"][0]
 mass_unit = constants.physical_constants["atomic mass constant"][0]
 ANG = constants.physical_constants["angstrom"][0]
-CONV_FACTOR = 10**9*AU**3/RY_J
+CONV_FACTOR = 1e9*AU**3/RY_J
 
 #Energy conversion - Joule to Rydberg
 def j_to_ry(energy):
@@ -55,9 +55,9 @@ def ry_au3_to_gpa(pressure):
     return pressure*CONV_FACTOR
 
 #Pressure conversion - Giga Pascal to Dyne/cm^2
-def gpa_to_ry_au3(pressure):
-    return pressure/10**(-10)
+def gpa_to_dyne_cm2(pressure):
+    return pressure/1e-10
 
 #Pressure conversion - Dyne/cm^2 to Giga Pascal 
-def gpa_to_ry_au3(pressure):
-    return pressure*10**(-10)
+def dyne_cm2_to_gpa(pressure):
+    return pressure*1e-10
