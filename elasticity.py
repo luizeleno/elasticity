@@ -1,19 +1,6 @@
 import numpy as np
 import numpy.linalg as la
 
-'''
-    elasticity
-
-    A collection of classes and routines to
-    help the treatment and presentation
-    of single and polycrystal elastic properties
-
-    Prof. Luiz T. F. Eleno
-    Materials Eng. Dept.
-    Lorena School of Engineering
-    University of Sao Paulo
-'''
-
 class ElasticityTheory:
 
     '''
@@ -35,31 +22,10 @@ class ElasticityTheory:
 
     '''
 
-    def __init__(self, crystal_class, *stiff_consts):
-
-        self.crystal_classes = {'isotropic': 2, 'cubic': 3, 'hexagonal': 5,
-                                'trigonal_1': 6, 'trigonal_2': 7,
-                                'tetragonal_1': 6, 'tetragonal_2': 7,
-                                'orthorhombic': 9, 'monoclinic_1': 13,
-                                'monoclinic_2': 13, 'triclinic': 21}
-
-        if crystal_class not in self.crystal_classes:
-            raise KeyError('Unknown crystal class: %s. Use: %s' % (crystal_class, [s for s in self.crystal_classes]))
-
-        self.crystal_class = crystal_class
-        self.nconsts = self.crystal_classes[crystal_class]
-
-        self.C = self.StiffnessMatrix(crystal_class, *stiff_consts)
-        self.S = self.ComplianceMatrix(self.C)
-        self.St = self.ComplianceTensor(self.S)
-
     def StiffnessMatrix(self, crystal_class, *stiff_consts):
-
         m, n = self.crystal_classes[crystal_class], len(stiff_consts)
-
         if m != n:
             raise IndexError('Crystal class %s has %d independent constants, but %d were provided' % (crystal_class, m, n))
-
         if crystal_class == 'isotropic':
             C11, C12 = stiff_consts
             C44 = .5 * (C11 - C12)
@@ -69,9 +35,7 @@ class ElasticityTheory:
                 [0.,  0., C11,  0.,  0.,  0.],
                 [0.,  0.,  0., C44,  0.,  0.],
                 [0.,  0.,  0.,  0., C44,  0.],
-                [0.,  0.,  0.,  0.,  0., C44]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C44]])
         elif crystal_class == 'cubic':      # all classes
             C11, C12, C44 = stiff_consts
             C = np.array([
@@ -80,9 +44,7 @@ class ElasticityTheory:
                 [0.,  0., C11,  0.,   0.,  0.],
                 [0.,  0.,  0., C44,   0.,  0.],
                 [0.,  0.,  0.,  0.,  C44,  0.],
-                [0.,  0.,  0.,  0.,   0., C44]
-               ]
-              )
+                [0.,  0.,  0.,  0.,   0., C44]])
         elif crystal_class == 'hexagonal':      # all classes
             C11, C12, C13, C33, C44 = stiff_consts
             C66 = .5 * (C11 - C12)
@@ -92,9 +54,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0.,  0.,  0.],
                 [0.,  0.,  0., C44,  0.,  0.],
                 [0.,  0.,  0.,  0., C44,  0.],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66]])
         elif crystal_class == 'tetragonal_1':  # classes 4mm, -42m, 422, 4/mmm
             C11, C12, C13, C33, C44, C66 = stiff_consts
             C = np.array([
@@ -103,9 +63,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0.,  0.,  0.],
                 [0.,  0.,  0., C44,  0.,  0.],
                 [0.,  0.,  0.,  0., C44,  0.],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66]])
         elif crystal_class == 'tetragonal_2':    # classes 4, -4, 4/m
             C11, C12, C13, C16, C33, C44, C66 = stiff_consts
             C = np.array([
@@ -114,9 +72,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0.,  0.,   0.],
                 [0.,  0.,  0., C44,  0.,   0.],
                 [0.,  0.,  0.,  0., C44,   0.],
-                [0.,  0.,  0.,  0.,  0.,  C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0.,  C66]])
         elif crystal_class == 'trigonal_1':     # classes 32, -3m, 3m
             C11, C12, C13, C14, C33, C44 = stiff_consts
             C66 = .5 * (C11 - C12)
@@ -126,9 +82,7 @@ class ElasticityTheory:
                 [0., 0.,  C33,   0.,  0.,  0.],
                 [0., 0.,   0.,  C44,  0.,  0.],
                 [0., 0.,   0.,   0., C44, C14],
-                [0., 0.,   0.,   0.,  0., C66]
-               ]
-              )
+                [0., 0.,   0.,   0.,  0., C66]])
         elif crystal_class == 'trigonal_2':     # classes 3, -3
             C11, C12, C13, C33, C14, C15, C44 = stiff_consts
             C66 = .5 * (C11 - C12)
@@ -138,9 +92,7 @@ class ElasticityTheory:
                 [0.,  0., C33,   0.,   0.,   0.],
                 [0.,  0.,  0.,  C44,   0., -C15],
                 [0.,  0.,  0.,   0.,  C44,  C14],
-                [0.,  0.,  0.,   0.,   0.,  C66]
-               ]
-              )
+                [0.,  0.,  0.,   0.,   0.,  C66]])
         elif crystal_class == 'orthorhombic':       # all classes
             C11, C12, C13, C22, C23, C33, C44, C55, C66 = stiff_consts
             C = np.array([
@@ -149,9 +101,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0.,  0.,  0.],
                 [0.,  0.,  0., C44,  0.,  0.],
                 [0.,  0.,  0.,  0., C55,  0.],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66] ])
         elif crystal_class == 'monoclinic_1':       # diad || x2
             C11, C12, C13, C15, C22, C23, C25, C33, C35, C44, C46, C55, C66 = stiff_consts
             C = np.array([
@@ -160,9 +110,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0., C35,  0.],
                 [0.,  0.,  0., C44,  0., C46],
                 [0.,  0.,  0.,  0., C55,  0.],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66]])
         elif crystal_class == 'monoclinic_2':       # diad || x3
             C11, C12, C13, C16, C22, C23, C26, C33, C36, C44, C45, C55, C66 = stiff_consts
             C = np.array([
@@ -171,9 +119,7 @@ class ElasticityTheory:
                 [0.,  0., C33,  0.,  0., C36],
                 [0.,  0.,  0., C44, C45,  0.],
                 [0.,  0.,  0.,  0., C55,  0.],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66]])
         elif crystal_class == 'triclinic':      # all classes
             C11, C12, C13, C14, C15, C16, C22, C23, C24, C25, C26, C33, C34, C35, C36, C44, C45, C46, C55, C56, C66 = stiff_consts
             C = np.array([
@@ -182,9 +128,7 @@ class ElasticityTheory:
                 [0.,  0., C33, C34, C35, C36],
                 [0.,  0.,  0., C44, C45, C46],
                 [0.,  0.,  0.,  0., C55, C56],
-                [0.,  0.,  0.,  0.,  0., C66]
-               ]
-              )
+                [0.,  0.,  0.,  0.,  0., C66]])
 
         C = C + C.T - np.diag(C.diagonal())     # symmetrize C
         return C
@@ -324,8 +268,28 @@ class Elasticity(DirectionalProperties, VRH):
     pass
 
 class Crystal(Elasticity):
+    def __init__(self):
+                self.crystal_classes = {'isotropic': 2, 'cubic': 3, 'hexagonal': 5,
+                                        'trigonal_1': 6, 'trigonal_2': 7,
+                                        'tetragonal_1': 6, 'tetragonal_2': 7,
+                                        'orthorhombic': 9, 'monoclinic_1': 13,
+                                        'monoclinic_2': 13, 'triclinic': 21}
+                self.crystal_class=""
+                self.stiffconsts=[]
+                self.archive=''
 
-    def elasticinput(self,archive):
+
+    def manualinput(self, crystal_class, *stiff_consts):
+
+        if crystal_class not in self.crystal_classes:
+            raise KeyError('Unknown crystal class: %s. Use: %s' % (crystal_class, [s for s in self.crystal_classes]))
+
+        self.crystal_class = crystal_class
+        self.nconsts = self.crystal_classes[crystal_class]
+        self.C = self.StiffnessMatrix(crystal_class, *stiff_consts)
+        self.S = self.ComplianceMatrix(self.C)
+        self.St = self.ComplianceTensor(self.S)
+    def autoinput(self, archive):
         self.archive=archive
         with open(self.archive) as a:
             self.lines=list(a)
@@ -338,41 +302,41 @@ class Crystal(Elasticity):
 
             if "Isotropic" in list(self.lines[4].split()):
                 self.crystal_class='isotropic'
-                stiffconsts=[self.c11,self.c12]
+                self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12)
             if "Cubic" in list(self.lines[4].split()):
                 self.crystal_class='cubic'
-                stiffconsts=[self.c11,self.c12,self.c44]
+                self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c44)
             if "Hexagonal" in list(self.lines[4].split()):
                 self.crystal_class='hexagonal'
-                stiffconsts=[self.c11,self.c12,self.c13,self.c33,self.c44]
+                self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c33,self.c44)
             if "Trigonal" in list(self.lines[4].split()):
                 if 'I' in list(self.lines[4].split()):
                     self.crystal_class='trigonal_1'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c33,self.c44]
+                    self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c14,self.c33,self.c44)
                 else:
                     self.crystal_class='trigonal_2'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c15,self.c44]
+                    self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c14,self.c15,self.c44)
             if "Tetragonal" in list(self.lines[4].split()):
                 if 'I' in list(self.lines[4].split()):
                     self.crystal_class='tetragonal _1'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c33,self.c44,self.c66]
+                    self.C = self.StiffnessMatrix(self.crystal_class,self.c11,self.c12,self.c13,self.c33,self.c44,self.c66)
                 else:
                     self.crystal_class='tetragonal_2'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c16,self.c33,self.c44,self.c66]
+                    self.C = self.StiffnessMatrix(self.crystal_class,self.c11,self.c12,self.c13,self.c16,self.c33,self.c44,self.c66)
             if "Monoclinic" in list(self.lines[4].split()):
                 if 'I' in list(self.lines[4].split()):
                     self.crystal_class='monoclinic_1'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c15,self.c22,self.c23,self.c25,self.c33,self.c35,self.c44,self.c55,self.c66]
+                    self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c15,self.c22,self.c23,self.c25,self.c33,self.c35,self.c44,self.c55,self.c66)
                 else:
                     self.crystal_class='monoclinic_2'
-                    stiffconsts=[self.c11,self.c12,self.c13,self.c16,self.c22,self.c23,self.c26,self.c33,self.c36,self.c44,self.c45,self.c55,self.c66]
+                    self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c16,self.c22,self.c23,self.c26,self.c33,self.c36,self.c44,self.c45,self.c55,self.c66)
             if "Orthorhombic" in list(self.lines[4].split()):
                 self.crystal_class='orthorhombic'
-                stiffconsts=[self.c11,self.c12,self.c13,self.c22,self.c23,self.c33,self.c44,self.c55,self.c66]
-
+                self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c22,self.c23,self.c33,self.c44,self.c55,self.c66)
             if "Triclinic" in list(self.lines[4].split()):
                 self.crystal_class='triclinic'
-                stiffconsts=[self.c11,self.c12,self.c13,self.c14,self.c15,self.c16,self.c22,self.c23,self.c24,self.c25,self.c26,self.c33,self.c34,self.c35,self.c36,self.c44,self.c45,self.c46,self.c55,self.c56,self.c66]
-        self.C = self.StiffnessMatrix(self.crystal_class, stiffconsts)
+                self.C = self.StiffnessMatrix(self.crystal_class, self.c11,self.c12,self.c13,self.c14,self.c15,self.c16,self.c22,self.c23,self.c24,self.c25,self.c26,
+
+                self.c33,self.c34,self.c35,self.c36,self.c44,self.c45,self.c46,self.c55,self.c56,self.c66)
         self.S = self.ComplianceMatrix(self.C)
         self.St = self.ComplianceTensor(self.S)
