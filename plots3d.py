@@ -26,7 +26,7 @@ def mayaviplot(property, N=151, m=.1, d=.7, vmin=0, vmax=1, labels=['x (GPa)', '
     mlab.figure(1, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(1050, 1000))
     mlab.clf()
 
-    mlab.mesh(x, y, z, scalars=case, colormap='blues')
+    mlab.mesh(x, y, z, scalars=case, colormap='plasma')
     
     mlab.mesh(x, y, z, representation='wireframe', color=(.2, .2, .2), opacity=.1)
 
