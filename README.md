@@ -1,8 +1,8 @@
 # A new python library for micro- and macroscopic mechanical properties
 
-## Luiz T. F. Eleno
+## Prof. Dr. Luiz T. F. Eleno
 
-### University of São Paulo, Lorena School of Engineering, Materials Eng. Dept.
+### University of São Paulo, Lorena School of Engineering, Dept. of Materials Eng.
 
 ## Prerequisites
 - mayavi
