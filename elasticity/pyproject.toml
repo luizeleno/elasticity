@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "elasticity"
+version = "0.1.0"
+description = "This is a package to visualize and plot elastic properties of anisotropic materials"
+authors = ["EEL-USP-Elasticity Group"]
+license = "GNU General Public License v3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
