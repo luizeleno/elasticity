@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "elasticity"
 version = "0.1.0"
-description = "This is a package to visualize and plot elastic properties of anisotropic materials"
+description = "A collection of classes and routines to help the treatment and presentation of single and polycrystal elastic properties"
 authors = ["EEL-USP-Elasticity Group"]
 license = "GNU General Public License v3.0"
 readme = "README.md"
