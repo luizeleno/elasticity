@@ -68,6 +68,19 @@ class ElasticityTheory:
         self.St = self.ComplianceTensor(self.S)
 
     def StiffnessMatrix(self, crystal_class, *stiff_consts):
+        '''
+        Generates the stiffness matrix based on the given crystal class and independent elastic constants based on voigt notation
+
+        Parameters
+        ----------
+        crystal_class: str
+        stiffness constants: int
+
+        Returns
+        ----------
+        C | (6x6) numpy array | stiffness matrix based on the given crystal class and independent elastic constants as a class property
+
+        '''
 
         m, n = self.crystal_classes[crystal_class], len(stiff_consts)
 
@@ -204,10 +217,36 @@ class ElasticityTheory:
         return C
 
     def ComplianceMatrix(self, C):
+        '''
+        Generates the compliance matrix based on the given crystal class and independent elastic constants based on voigt notation
+
+        Parameters
+        ----------
+        crystal_class: str
+        stiffness constants: int
+
+        Returns
+        ----------
+        S | (6x6) numpy array | stiffness matrix based on the given crystal class and independent elastic constants as a class property
+
+        '''
 
         return la.inv(C)
 
     def ComplianceTensor(self, S):
+        '''
+        Generates the compliance tensor based on the given crystal class and independent elastic constants based on voigt notation
+
+        Parameters
+        ----------
+        crystal_class: str
+        stiffness constants: int
+
+        Returns
+        ----------
+        C | (3x3x3x3) numpy array | compliance tensor based on the given crystal class and independent elastic constants as a class property
+
+        '''
 
         St = np.zeros((3, 3, 3, 3), dtype=float)
 
