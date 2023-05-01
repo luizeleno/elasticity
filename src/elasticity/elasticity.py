@@ -275,13 +275,23 @@ class ElasticityTheory:
 class DirectionalProperties(ElasticityTheory):
 
     '''
-        Directional properties --- functions to calculate:
-            - unidimensional bulk modulus(l)
-            - Young's modulus(l)
-            - Shear Modulus(l, n)
-            #- Poisson's ratio(l, n)
+    [incomplete]
+    Generates the material directional properties based on the properties inherited by ElasticityTheory class.
 
-        as a function of strain/stress direction l and normal direction n
+        Parameters
+        ----------
+        l - Stress direction
+        n - Normal direction
+
+        Returns
+        ----------
+        B | Linear compressibility for each direction l
+        E | Young Modulus for each direction l
+        G | Shear Modulus for l and n directions
+        p | Poisson's Ration for l and n directions
+
+        Example:
+        ----------
     '''
 
     def LinearCompressibility(self, l):
