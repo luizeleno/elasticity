@@ -18,21 +18,34 @@ import numpy.linalg as la
 class ElasticityTheory:
 
     '''
-        ElasticityTheory class
+        Generates the compliance matrix, compliance tensor and stiffness matrix based on the given inputs. Each crystal class have a specific number of constants to be given
 
-        input:
-            - crystal_class: classified according to Nye (1956).
-            One of the following (with no. of independent elastic constants):
-                   'isotropic' (2) , 'cubic' (3), 'hexagonal' (5),
-                   'trigonal_1' (6), 'trigonal_2' (7), 'tetragonal_1' (6),
-                   'tetragonal_2' (7), 'orthorhombic' (9), 'monoclinic_1' (13),
-                   'monoclinic_2' (13), 'triclinic' (21)
-            - stiffness constants: variable number of constants,
-               depending on crystal_class.
-               Units: GPa
+        Parameters
+        ----------
+        crystal_class: str | one of the following:
+            'isotropic' (2) ,
+            'cubic' (3),
+            'hexagonal' (5),
+            'trigonal_1' (6),
+            'trigonal_2' (7),
+            'tetragonal_1' (6),
+            'tetragonal_2' (7),
+            'orthorhombic' (9),
+            'monoclinic_1' (13),
+            'monoclinic_2' (13),
+            'triclinic' (21)
+        stiffness constants: int | independent elastic constants, the quantity of constants depends on the crystal class, GPa is the refered unit
 
-        output: functions to calculate the Compliance and Stiffness matrices,
-           and the Compliance tensor
+        Returns
+        ----------
+        C | (6x6) numpy array | stiffness matrix based on the given constants and material crystal class
+        S | (6x6) numpy array | compliance matrix based on the given constants and material crystal class
+        St| (3x3x3x3) numpy array | compliance tensor based on the given constants and material crystal class
+
+        Example:
+        ----------
+        CsNiF3 =  ElasticityTheory('tetragonal_1', 29.10, -13.10, -1.81, 11.00, 213.00, 84.00)
+
 
     '''
 
