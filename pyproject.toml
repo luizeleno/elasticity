@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 numpy = "^1.24.3"
+vtk = "^9.2.6"
+mayavi = "^4.8.1"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
