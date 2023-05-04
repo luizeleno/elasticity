@@ -275,26 +275,49 @@ class ElasticityTheory:
 class DirectionalProperties(ElasticityTheory):
 
     '''
-    [incomplete]
-    Generates the material directional properties based on the properties inherited by ElasticityTheory class.
-
+    Generates the material directional properties based on the given input properties
         Parameters
         ----------
+        crystal_class: str
+        stiffness constants: int
         l - Stress direction
         n - Normal direction
 
         Returns
         ----------
-        B | Linear compressibility for each direction l
-        E | Young Modulus for each direction l
-        G | Shear Modulus for l and n directions
-        p | Poisson's Ration for l and n directions
+        B | (NxN) np array | Linear compressibility for each direction l
+        E | (NxN) np array | Young Modulus for each direction l
+        G | (NxNxN) np array | Shear Modulus for l and n directions
+        p | (NxNxN) np array | Poisson's Ration for l and n directions
+        *N is the number of points specified in the l direction
 
         Example:
         ----------
+        DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+        theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
+        ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+        DirProp.LinearCompressibility(ldir)
     '''
 
     def LinearCompressibility(self, l):
+        '''
+            Generates the material linear compressibility matrix based on the l direction input
+            Parameters
+            ----------
+            l - Stress direction
+
+            Returns
+            ----------
+            B | (NxN) np array | Linear compressibility for each direction l
+            *N is the number of points specified in the l direction
+
+            Example:
+            ----------
+            DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
+            ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+            DirProp.LinearCompressibility(ldir)
+        '''
 
         B = 0.
         for i in range(3):
@@ -304,7 +327,24 @@ class DirectionalProperties(ElasticityTheory):
         return 1.0 / B
 
     def YoungModulus(self, l):
+        '''
+            Generates the material young modulus matrix based on the l direction input
+            Parameters
+            ----------
+            l - Stress direction
 
+            Returns
+            ----------
+            E | (NxN) np array | Linear compressibility for each direction l
+            *N is the number of points specified in the l direction
+
+            Example:
+            ----------
+            DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
+            ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+            DirProp.YoungModulus(ldir)
+        '''
         E = 0.
         for i in range(3):
             for j in range(3):
@@ -314,6 +354,32 @@ class DirectionalProperties(ElasticityTheory):
         return 1.0 / E
 
     def ShearModulus(self, l, n):
+        '''
+            Generates the material shear modulus matrix based on the l direction input
+            Parameters
+            ----------
+            l - Stress direction
+            n - Normal direction
+
+            Returns
+            ----------
+            E | (NxN) np array | Linear compressibility for each direction l
+            *N is the number of points specified in the l direction
+            *The psi angle in ndir must be fixated to generate a plottable image
+
+            Example:
+            ----------
+            DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            theta, phi = np.mgrid[0:np.pi:int(100)*1j, 0:2*np.pi:int(100)*1j]
+            ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j]
+            ndir  = np.array([
+                    np.sin(n_dir_phi) * np.sin(0)- np.cos(n_dir_theta)*np.cos(n_dir_phi)*np.cos(0),
+                    -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
+                    np.sin(n_dir_phi)*np.cos(0)
+                ])
+            DirProp.YoungModulus(ldir,ndir)
+        '''
 
         G = 0.
         for i in range(3):
@@ -324,6 +390,32 @@ class DirectionalProperties(ElasticityTheory):
         return .25 / G
 
     def PoissonRatio(self, l, n):
+        '''
+            Generates the material Poisson Ratio matrix based on the l direction input
+            Parameters
+            ----------
+            l - Stress direction
+            n - Normal direction
+
+            Returns
+            ----------
+            E | (NxN) np array | Linear compressibility for each direction l
+            *N is the number of points specified in the l direction
+            *The psi angle in ndir must be fixated to generate a plottable image
+
+            Example:
+            ----------
+            DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            theta, phi = np.mgrid[0:np.pi:int(100)*1j, 0:2*np.pi:int(100)*1j]
+            ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j]
+            ndir  = np.array([
+                    np.sin(n_dir_phi) * np.sin(0)- np.cos(n_dir_theta)*np.cos(n_dir_phi)*np.cos(0),
+                    -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
+                    np.sin(n_dir_phi)*np.cos(0)
+                ])
+            DirProp.PoissonRatio(ldir,ndir)
+        '''
 
         p = 0.
         for i in range(3):
