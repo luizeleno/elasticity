@@ -293,10 +293,19 @@ class DirectionalProperties(ElasticityTheory):
 
         Example:
         ----------
+        #For l dependant functions
         DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
         theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
         ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
         DirProp.LinearCompressibility(ldir)
+        #For l,n dependant functions
+        n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j]
+        ndir  = np.array([
+                    np.sin(n_dir_phi) * np.sin(0)- np.cos(n_dir_theta)*np.cos(n_dir_phi)*np.cos(0),
+                    -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
+                    np.sin(n_dir_phi)*np.cos(0)
+                ])
+        DirProp.YoungModulus(ldir,ndir)
     '''
 
     def LinearCompressibility(self, l):
@@ -429,10 +438,28 @@ class DirectionalProperties(ElasticityTheory):
 class VRH(ElasticityTheory):
 
     '''
-        Voigt-Reuss-Hill approximation
-        to polycristalline elastic properties
+        Voigt-Reuss-Hill approximation to polycristalline elastic properties
 
-        The function VHR is the main user interface
+        Parameters
+        ----------
+        crystal_class: str
+        stiffness constants: int
+
+        Returns
+        ----------
+        BR | int | Reuss approximation of linear compressibility
+        GR | int | Reuss approximation of shear modulus
+        BV | int | Voigt approximation of linear compressibility
+        GV | int | Voigt approximation of shear modulus
+        BH | int | Hill approximation of linear compressibility
+        GH | int | Hill Reuss approximation of shear modulus
+        BulkModulus | int | VRH approximation of Bulk Modulus using data from the three approximations
+        YoungModulus | int | VRH approximation of Young Modulus using data from the three approximations
+        PoissonRatio | int | VRH approximation of Poisson Ratio using data from the three approximations
+
+        Example:
+        ----------
+        VRHProp = VRH('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
     '''
 
     def Reuss(self):
