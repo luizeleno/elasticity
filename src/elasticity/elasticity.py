@@ -22,25 +22,19 @@ class ElasticityTheory:
 
         Parameters
         ----------
-        crystal_class: str | one of the following:
-            'isotropic' (2) ,
-            'cubic' (3),
-            'hexagonal' (5),
-            'trigonal_1' (6),
-            'trigonal_2' (7),
-            'tetragonal_1' (6),
-            'tetragonal_2' (7),
-            'orthorhombic' (9),
-            'monoclinic_1' (13),
-            'monoclinic_2' (13),
-            'triclinic' (21)
-        stiffness constants: int | independent elastic constants, the quantity of constants depends on the crystal class, GPa is the refered unit
+        crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
+        stiffness constants: int
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
 
         Returns
         ----------
-        C | (6x6) numpy array | stiffness matrix based on the given constants and material crystal class
-        S | (6x6) numpy array | compliance matrix based on the given constants and material crystal class
-        St| (3x3x3x3) numpy array | compliance tensor based on the given constants and material crystal class
+        C: array
+            (6x6) numpy array, stiffness matrix based on the given constants and material crystal class
+        S: array
+            (6x6) numpy array | compliance matrix based on the given constants and material crystal class
+        St:
+            (3x3x3x3) numpy array | compliance tensor based on the given constants and material crystal class
 
         Example:
         ----------
@@ -71,14 +65,19 @@ class ElasticityTheory:
         '''
         Generates the stiffness matrix based on the given crystal class and independent elastic constants based on voigt notation
 
+        Generates the compliance matrix, compliance tensor and stiffness matrix based on the given inputs. Each crystal class have a specific number of constants to be given
+
         Parameters
         ----------
         crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
         stiffness constants: int
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
 
         Returns
         ----------
-        C | (6x6) numpy array | stiffness matrix based on the given crystal class and independent elastic constants as a class property
+        C: array
+            (6x6) numpy array, stiffness matrix based on the given constants and material crystal class
 
         '''
 
@@ -223,12 +222,14 @@ class ElasticityTheory:
         Parameters
         ----------
         crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
         stiffness constants: int
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
 
         Returns
         ----------
-        S | (6x6) numpy array | stiffness matrix based on the given crystal class and independent elastic constants as a class property
-
+        S: array
+            (6x6) numpy array | compliance matrix based on the given constants and material crystal class
         '''
 
         return la.inv(C)
@@ -240,13 +241,17 @@ class ElasticityTheory:
         Parameters
         ----------
         crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
         stiffness constants: int
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
+
 
         Returns
         ----------
-        C | (3x3x3x3) numpy array | compliance tensor based on the given crystal class and independent elastic constants as a class property
-
+        St: array
+            (3x3x3x3) numpy array | compliance tensor based on the given constants and material crystal class
         '''
+
 
         St = np.zeros((3, 3, 3, 3), dtype=float)
 
@@ -275,13 +280,14 @@ class ElasticityTheory:
 class DirectionalProperties(ElasticityTheory):
 
     '''
-    Generates the material directional properties based on the given input properties
+    Generates the object that calculate directional properties based on the given input properties
         Parameters
         ----------
         crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
         stiffness constants: int
-        l - Stress direction
-        n - Normal direction
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
+
 
         Returns
         ----------
@@ -313,16 +319,18 @@ class DirectionalProperties(ElasticityTheory):
             Generates the material linear compressibility matrix based on the l direction input
             Parameters
             ----------
-            l - Stress direction
+            l: array
+                Stress direction (NxN) array
 
             Returns
             ----------
-            B | (NxN) np array | Linear compressibility for each direction l
-            *N is the number of points specified in the l direction
+            B: array
+                (NxN) np array | Linear compressibility for each direction l
 
             Example:
             ----------
             DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            #N=100
             theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
             ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
             DirProp.LinearCompressibility(ldir)
@@ -340,19 +348,21 @@ class DirectionalProperties(ElasticityTheory):
             Generates the material young modulus matrix based on the l direction input
             Parameters
             ----------
-            l - Stress direction
+            l: array
+                Stress direction (NxN) array
 
             Returns
             ----------
-            E | (NxN) np array | Linear compressibility for each direction l
-            *N is the number of points specified in the l direction
+            E: array
+                (NxN) np array | Linear compressibility for each direction l
 
             Example:
             ----------
             DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
+            #N=100
             theta, phi = np.mgrid[0:np.pi:100, 0:2*np.pi:100]
             ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
-            DirProp.YoungModulus(ldir)
+            DirProp.LinearCompressibility(ldir)
         '''
         E = 0.
         for i in range(3):
@@ -367,27 +377,31 @@ class DirectionalProperties(ElasticityTheory):
             Generates the material shear modulus matrix based on the l direction input
             Parameters
             ----------
-            l - Stress direction
-            n - Normal direction
+            l: array
+                Stress direction (NxN) array
+            n: array
+                Normal direction (NxNxN) array
 
             Returns
             ----------
-            E | (NxN) np array | Linear compressibility for each direction l
-            *N is the number of points specified in the l direction
-            *The psi angle in ndir must be fixated to generate a plottable image
+            G: array
+                (NxNxN) np array | Linear compressibility for each direction l and normal direction n
+
 
             Example:
             ----------
             DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
             theta, phi = np.mgrid[0:np.pi:int(100)*1j, 0:2*np.pi:int(100)*1j]
             ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
-            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j]
+            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100)* 1j]
+            *N is the number of points specified in the l direction
+            *The psi angle in ndir must be fixated to generate a plottable image
             ndir  = np.array([
                     np.sin(n_dir_phi) * np.sin(0)- np.cos(n_dir_theta)*np.cos(n_dir_phi)*np.cos(0),
                     -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
                     np.sin(n_dir_phi)*np.cos(0)
                 ])
-            DirProp.YoungModulus(ldir,ndir)
+            DirProp.ShearModulus(ldir,ndir)
         '''
 
         G = 0.
@@ -403,21 +417,25 @@ class DirectionalProperties(ElasticityTheory):
             Generates the material Poisson Ratio matrix based on the l direction input
             Parameters
             ----------
-            l - Stress direction
-            n - Normal direction
+            l: array
+                Stress direction (NxN) array
+            n: array
+                Normal direction (NxNxN) array
 
             Returns
             ----------
-            E | (NxN) np array | Linear compressibility for each direction l
-            *N is the number of points specified in the l direction
-            *The psi angle in ndir must be fixated to generate a plottable image
+            PoissonRatio: array
+                (NxNxN) np array | Linear compressibility for each direction l and normal direction n
+
 
             Example:
             ----------
             DirProp = DirectionalProperties('hexagonal', 246.73, 126.66, 104.6,241.26, 58.48 )
             theta, phi = np.mgrid[0:np.pi:int(100)*1j, 0:2*np.pi:int(100)*1j]
             ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
-            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j]
+            n_dir_theta, n_dir_phi, n_dir_psi = np.mgrid[0:np.pi:int(100) * 1j, 0:2*np.pi:int(100) * 1j, 0:2*np.pi:int(100)* 1j]
+            *N is the number of points specified in the l direction
+            *The psi angle in ndir must be fixated to generate a plottable image
             ndir  = np.array([
                     np.sin(n_dir_phi) * np.sin(0)- np.cos(n_dir_theta)*np.cos(n_dir_phi)*np.cos(0),
                     -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
@@ -443,19 +461,31 @@ class VRH(ElasticityTheory):
         Parameters
         ----------
         crystal_class: str
+            one of the following crystal classes: isotropic (2), cubic (3), hexagonal (5), trigonal_1 (6), trigonal_2 (7), tetragonal_1 (6), tetragonal_2 (7), orthorhombic (9), monoclinic_1 (13), monoclinic_2 (13), triclinic (21)
         stiffness constants: int
+            independent elastic constants, the quantity of constants depends on the crystal class, as indicated between parenthesis above, GPa is the refered unit
+
 
         Returns
         ----------
-        BR | int | Reuss approximation of linear compressibility
-        GR | int | Reuss approximation of shear modulus
-        BV | int | Voigt approximation of linear compressibility
-        GV | int | Voigt approximation of shear modulus
-        BH | int | Hill approximation of linear compressibility
-        GH | int | Hill Reuss approximation of shear modulus
-        BulkModulus | int | VRH approximation of Bulk Modulus using data from the three approximations
-        YoungModulus | int | VRH approximation of Young Modulus using data from the three approximations
-        PoissonRatio | int | VRH approximation of Poisson Ratio using data from the three approximations
+        BR: int
+            Reuss approximation of linear compressibility
+        GR: int
+            Reuss approximation of shear modulus
+        BV: int
+            Voigt approximation of linear compressibility
+        GV :int
+            Voigt approximation of shear modulus
+        BH: int
+            Hill approximation of linear compressibility
+        GH: int
+            Hill Reuss approximation of shear modulus
+        BulkModulus: int
+            VRH approximation of Bulk Modulus using data from the three approximations
+        YoungModulus: int
+            VRH approximation of Young Modulus using data from the three approximations
+        PoissonRatio: int
+            VRH approximation of Poisson Ratio using data from the three approximations
 
         Example:
         ----------
