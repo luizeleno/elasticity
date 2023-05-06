@@ -311,7 +311,7 @@ class DirectionalProperties(ElasticityTheory):
                     -np.cos(n_dir_phi)*np.sin(0) - np.cos(n_dir_phi)*np.sin(n_dir_phi)*np.cos(0),
                     np.sin(n_dir_phi)*np.cos(0)
                 ])
-        DirProp.YoungModulus(ldir,ndir)
+        DirProp.ShearModulus(ldir,ndir)
     '''
 
     def LinearCompressibility(self, l):
