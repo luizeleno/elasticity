@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "elasticity"
+name = "ElasticityProject"
 version = "0.1.0"
 description = "A collection of classes and routines to help the treatment and presentation of single and polycrystal elastic properties"
 authors = ["EEL-USP-Elasticity Group"]
