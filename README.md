@@ -1,6 +1,8 @@
 # elasticity
 
-This is a package to visualize and plot elastic properties of anisotropic materials
+A collection of classes and routines to help the treatment and presentation of single and polycrystal elastic properties
+
+
 
 ## Installation
 

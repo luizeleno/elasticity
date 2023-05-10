@@ -1,19 +1,6 @@
 import numpy as np
 import numpy.linalg as la
 
-'''
-    elasticity
-
-    A collection of classes and routines to
-    help the treatment and presentation
-    of single and polycrystal elastic properties
-
-    Prof. Luiz T. F. Eleno
-    Materials Eng. Dept.
-    Lorena School of Engineering
-    University of Sao Paulo
-'''
-
 
 class ElasticityTheory:
 

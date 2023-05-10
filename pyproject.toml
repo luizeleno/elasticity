@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "ElasticityProject"
+name = "elasticityproject"
 version = "0.1.0"
 description = "A collection of classes and routines to help the treatment and presentation of single and polycrystal elastic properties"
-authors = ["EEL-USP-Elasticity Group"]
+authors = ["EEL-USP-Elasticity Group","Prof. Luiz T. F. Eleno"]
 license = "GNU General Public License v3.0"
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"

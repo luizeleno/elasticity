@@ -11,7 +11,7 @@ def mayaviplot(property, smoothness, auto_extent=True ,axes_extent=4,labels=['x 
         ----------
         property: object
             a instance of the object created by the DirectionalProperties class
-        N: int
+        smoothness: int
             degree of smoothness of the generated surface
         auto_extent: bool, optional
             flag to determine the axes extenxt will be generated automatically or via input
@@ -40,8 +40,6 @@ def mayaviplot(property, smoothness, auto_extent=True ,axes_extent=4,labels=['x 
     theta, phi = np.mgrid[0:np.pi:smoothness, 0:2*np.pi:smoothness]
     ldir = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
     case = property(ldir)
-
-    print(case.min(), case.max())
 
     x = case * ldir[0]
     y = case * ldir[1]
