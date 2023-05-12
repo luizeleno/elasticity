@@ -7,7 +7,7 @@ A collection of classes and routines to help the treatment and presentation of s
 ## Installation
 
 ```bash
-$ pip install elasticity
+$ pip install elasticityproject
 ```
 
 ## Usage
