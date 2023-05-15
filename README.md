@@ -10,7 +10,7 @@ $ pip install elasticityproject
 
 ## Usage
 
-- TODO
+- See the [`elasticityproject`](https://elasticity.readthedocs.io/en/latest/index.html) docs:
 
 ## Contributing
 
