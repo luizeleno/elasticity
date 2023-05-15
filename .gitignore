@@ -143,3 +143,6 @@ dmypy.json
 
 #TestFiles
 testfile.py
+
+#Old elasticity structure
+old_elasticity_structure/
