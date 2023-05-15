@@ -95,7 +95,7 @@ python-dateutil = ">=2.7.0"
 
 [[package]]
 name = "astroid"
-version = "2.15.4"
+version = "2.15.5"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -442,7 +442,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 
 [[package]]
 name = "ipykernel"
-version = "6.23.0"
+version = "6.23.1"
 description = "IPython Kernel for Jupyter"
 category = "dev"
 optional = false
@@ -1762,7 +1762,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tornado"
-version = "6.3.1"
+version = "6.3.2"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 category = "dev"
 optional = false

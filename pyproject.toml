@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "elasticityproject"
-version = "0.1.1.3"
+version = "0.1.1.4"
 description = "A collection of classes and routines to help the treatment and presentation of single and polycrystal elastic properties"
 authors = ["EELElasticityGroup"]
 license = "GNU General Public License v3.0"
