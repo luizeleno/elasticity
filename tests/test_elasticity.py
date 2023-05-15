@@ -1,1 +1,0 @@
-from elasticity import elasticity
